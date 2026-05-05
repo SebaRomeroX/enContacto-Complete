@@ -1,0 +1,133 @@
+.pagina-chats {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+}
+
+
+/*--------------------------------------------*/
+
+.chats-header {
+  background-color: black;
+  padding: 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/*--------------------------------------------*/
+/* PANTALLA  */
+
+.pantalla {
+  display: flex;
+  height: 100%;
+}
+
+/* LISAT SALAS */
+
+.lista-salas-section {
+  background-color: rgb(8, 8, 8);
+  padding: 1em .6em;
+}
+
+.lista-salas-section h2 {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+.lista-salas-section ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.lista-salas-section li {
+  list-style: none;
+  border-bottom: 1px solid rgb(114, 117, 121);
+  cursor: pointer;
+}
+
+/*   SALA    */
+
+.sala {
+  width: 100%;
+  padding: 1em;
+}
+
+
+/*   CHAT    */
+
+.chat-section {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  height: 77vh;
+  
+  overflow-y: auto;
+}
+
+.chat-section li {
+  width: fit-content;
+  display: flex;
+  gap: 1em;
+}
+
+.chat-section img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.mensaje {
+  background-color: black;
+  padding: .4em 1em;
+  border-radius: .4em;
+}
+
+
+/*--------------------------------------------*/
+/* MENSAJEADOR */
+
+.caja-mensaje {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+
+  padding: .4em;
+  background-color: black;
+}
+
+.caja-mensaje input {
+  background-color: inherit;
+  width: 80%;
+  height: 50%;
+  color: aliceblue;
+  font-size: 1em;
+
+  padding: .2em 1em;
+  border-radius: .4em;
+}
+
+.caja-mensaje button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  
+  background-color: #25D366;
+  font-size: 1.2em;
+  color: rgb(29, 29, 29);
+}
+
+
+@media all and (min-width:1024px) {
+  .lista-salas-section {
+    padding: 1em 2em;
+  }
+  .sala {
+    max-width: 1124px;
+    padding-left: 4em;
+  }
+}

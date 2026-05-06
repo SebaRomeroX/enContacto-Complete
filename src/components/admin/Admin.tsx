@@ -22,7 +22,9 @@ export const Admin = () => {
       <section>
         <ul className='lista-admin'>
           <h3>Usuarios</h3>
-          { usuarios.map(usuario => <FichaUsuario usuario={usuario} /> )}
+          { usuarios.map(usuario =>
+            <FichaUsuario usuario={usuario} key={usuario.id}/> 
+          )}
         </ul>
         <FormUsuario />
       </section>

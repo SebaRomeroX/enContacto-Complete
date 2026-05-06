@@ -25,6 +25,7 @@ export const CajaMensaje = () => {
 
   function handleEscribir (e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    // console.log(usuario)
     if (!texto || !usuario) return
 
     setTexto('')

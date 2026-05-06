@@ -15,11 +15,11 @@ export const FichaSala = ({ nombre, id }: FichaProp) => {
       </section>
       <section className='botones'>
         <button className="boton" onClick={() => eliminarSala(id)}>Eliminar sala</button>
-        <button className="boton" onClick={() => vaciarChat(id)}>Borrar mensajes</button>
+        {/* <button className="boton" onClick={() => vaciarChat(id)}>Borrar mensajes</button>
         { editar
           ? <EditForm nombre={nombre} id={id} ocultar={() => setEditar(false)} />
           : <button className="boton" onClick={() => setEditar(true)}>Cambiar nombre</button>
-        }
+        } */}
       </section>
   </li>
   )

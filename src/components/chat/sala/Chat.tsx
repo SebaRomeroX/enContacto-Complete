@@ -12,13 +12,19 @@ export const Chat = () => {
     }
   }, [salaActiva])
 
+
+  // TEMPORAL
+  const salaNombre = 'Tutorial'
+
+  //--------
+
   return (
     <section className="sala">
       {
         salaActiva
           ? <ul className="chat-section" ref={contenedorRef}>
-              <h2>{salaActiva.nombre}</h2>
-              { salaActiva.chat?.map((msj, index) => <Mensaje key={index} msj={msj} /> )}
+              <h2>{salaNombre}</h2>
+              { salaActiva?.map((msj, index) => <Mensaje key={index} msj={msj} /> )}
             </ul>
           : <p>Elige un sala</p>
       }

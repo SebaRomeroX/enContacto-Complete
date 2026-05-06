@@ -2,6 +2,7 @@ import { createContext, useEffect, useState, type PropsWithChildren } from 'reac
 import type { Id, Sala } from '../types/types';
 import { crearNewId } from '../utils/crearNewId';
 import { SALAS } from '../mocks/mock';
+import { getMensajes, postMensaje } from '../services/mensajes'
 
 interface SalaContextType {
   salaActiva: Sala | undefined;
@@ -15,7 +16,7 @@ interface SalaContextType {
 }
 
 const defaultContextValue: SalaContextType = {
-  salaActiva: SALAS[0],
+  salaActiva: undefined,
   salas: [],
   agregarMensaje: () => {},
   asignarSala: () => {},
@@ -31,24 +32,40 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   const [salas, setSalas] = useState(SALAS)
   const [salaActiva, setSalaActiva] = useState<Sala | undefined>()
 
-  useEffect(() => {
-    setSalaActiva(salas[0])
-  }, [salas])
 
+
+  // RENDER
+  console.log('Sala: ', salaActiva)
+
+
+
+  // MENSAJES
   function asignarSala (id: Id) {
-    const newSala = salas.find(salaDB => salaDB.id === id)
-    setSalaActiva(newSala)
+    // const newSala = salas.find(salaDB => salaDB.id === id)
+    // setSalaActiva(newSala)
+    getMensajes().then(res => setSalaActiva(res))
   }
   
-  function agregarMensaje (texto: string, id: Id) {
+  async function agregarMensaje (texto: string, id: Id) {
     if (!salaActiva) return
 
-    const newMensaje = { usuarioId: id, mensaje: texto }
+    // TEMPORAL
+    const salaId = 'sala-f54828dc-35af-485a-ac9e-9b776f4afa1a'
+    //---------
+
+    const newMensaje = { usuarioId: id, mensaje: texto, salaId }
+
+
     
-    const newChat = [...salaActiva.chat, newMensaje]
-    setSalaActiva({...salaActiva, chat: newChat})
+    // ARREGLAR ESTO NO ESTA ESPERANDO !!!
+    postMensaje(newMensaje)
+    setSalaActiva(prevMsj => prevMsj.concat(newMensaje))
   }
 
+
+
+
+  // SALAS
   function eliminarSala (id: Id) {
     const newSalas = salas.filter(sala => sala.id !== id)
     setSalas(newSalas)
@@ -84,6 +101,9 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     setSalas(newSalas)
   }
 
+
+
+  // SALIDA
   const value: SalaContextType = {
     salaActiva,
     salas,

@@ -22,7 +22,7 @@ export const UsuarioContext = createContext(defaultContextValue)
 
 export const UsuarioProvider = ({ children }: PropsWithChildren) => {
   const [usuarios, setUsuarios] = useState(USUARIOS)
-  const usuario = USUARIOS[7]
+  const usuario = USUARIOS[1]
 
   function crearUsuario (nombre: string, foto: string) {
     if (usuarios.find(user => user.nombre === nombre)) return

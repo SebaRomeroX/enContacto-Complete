@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState, type PropsWithChildren } from 'react'
+import { createContext, useState, type PropsWithChildren } from 'react'
 import type { Id, Sala } from '../types/types';
 import { crearNewId } from '../utils/crearNewId';
 import { SALAS } from '../mocks/mock';

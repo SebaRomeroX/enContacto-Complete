@@ -15,6 +15,7 @@ export type MensajeType = {
   mensaje: string,
   usuarioId: Id,
 }
+
 export type Sala = {
   nombre: string,
   id: Id,

@@ -7,14 +7,11 @@ export const getMensajes = () => {
     .get(route)
     .then(response => {
       const { data } = response
-      // console.log(data)
       return data
     })
 }
 
 export const postMensaje = (content) => {
-  console.log(content)
-
   return axios
     .post(route, content)
     .then(response => {

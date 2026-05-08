@@ -5,7 +5,7 @@ import { SalasContext } from '../../context/salasContext'
 
 export const CajaMensaje = () => {
   const { usuario } = useContext(UsuarioContext)
-  const { agregarMensaje } = useContext(SalasContext)
+  const { agregarMensaje, salaActiva } = useContext(SalasContext)
   const [texto, setTexto] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -25,11 +25,11 @@ export const CajaMensaje = () => {
 
   function handleEscribir (e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    // console.log(usuario)
-    if (!texto || !usuario) return
+
+    if (!texto || !usuario || !salaActiva) return
 
     setTexto('')
-    agregarMensaje(texto, usuario.id)
+    agregarMensaje(texto, usuario.id, salaActiva.id)
   }
 
   return (

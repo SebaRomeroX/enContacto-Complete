@@ -1,8 +1,8 @@
 import axios from "axios"
-const route = 'http://localhost:3001/api/mensajes'
+const route = 'http://localhost:3001/api/salas'
 
 
-export const getMensajes = () => {
+export const getSalas = () => {
   return axios
     .get(route)
     .then(response => {
@@ -11,7 +11,7 @@ export const getMensajes = () => {
     })
 }
 
-export const postMensaje = (content) => {
+export const postSalas = (content) => {
   return axios
     .post(route, content)
     .then(response => {
@@ -20,7 +20,7 @@ export const postMensaje = (content) => {
     })
 }
 
-export const deleteMensaje = (id) => {
+export const deleteSalas = (id) => {
   const rutaDelete = route.concat(`/${id}`)
   
   return axios

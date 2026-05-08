@@ -1,8 +1,8 @@
-import { createContext, type PropsWithChildren } from 'react'
+import { createContext, useEffect, type PropsWithChildren } from 'react'
 import { useState } from 'react'
 import type { Id, UserRol, Usuario } from '../types/types'
-import { crearNewId } from '../utils/crearNewId'
-import { USUARIOS } from '../mocks/mock'
+import { getUsuarios, postUsuarios, deleteUsuario } from '../services/usuarios'
+
 
 interface UsuarioContextType {
   usuario: Usuario | undefined
@@ -21,20 +21,35 @@ const defaultContextValue: UsuarioContextType = {
 export const UsuarioContext = createContext(defaultContextValue)
 
 export const UsuarioProvider = ({ children }: PropsWithChildren) => {
-  const [usuarios, setUsuarios] = useState(USUARIOS)
-  const usuario = USUARIOS[1]
+  const [usuarios, setUsuarios] = useState([])
+  const [usuario, setUsuario] = useState(undefined)
+
+
+  useEffect(() => {
+    getUsuarios().then(res => setUsuarios(res))
+  }, [])
+
+  
+  // USER ADMIN ( TEMPORAL ) -------------------------
+  useEffect(() => {
+    setUsuario(usuarios.find(user => user.nombre == 'Administrador'))
+  }, [usuarios])
+  // ---------------------------------------------------
+
 
   function crearUsuario (nombre: string, foto: string) {
     if (usuarios.find(user => user.nombre === nombre)) return
 
-    const newId = crearNewId('user')
-    const contra = '777' // ES FIJA PARA TODOS LOS NUEVOS USERS HASTA QUE SE RESUELVA COMO TRATARLO
-    const rol: UserRol = 'user' // SOLO USER // EL ADMIN NO SE DEBERIA PODER CREAR // ADMIN UNICO
-    const newUsuario = { nombre, foto, id: newId, contra, rol }
+    const contra = '777' // ES FIJA ( TEMPORAL )
+    const rol: UserRol = 'user' // SOLO SE CREA USERS
+    const newUsuario = { nombre, foto, contra, rol }
+    postUsuarios(newUsuario)
     setUsuarios([...usuarios, newUsuario])
   }
 
   function eliminarUsuario (id: Id) {
+    deleteUsuario(id)
+
     const newUsuarios = usuarios.filter(user => user.id !== id)
     setUsuarios(newUsuarios)
   }

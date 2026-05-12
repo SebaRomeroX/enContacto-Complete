@@ -1,23 +1,20 @@
-export type IdClase = 'user' | 'sala'
-export type Id = `${IdClase}-${string}-${string}-${string}-${string}-${string}`;
-
 export type UserRol = 'admin' | 'user'
 
 export type Usuario = {
-  id: Id,
+  id: string,
   foto: string,
   nombre: string,
   contra: string,
-  rol: UserRol
+  rol: UserRol,
 }
 
 export type MensajeType = {
   mensaje: string,
-  usuarioId: Id,
+  usuarioId: string,
+  salaId: string,
 }
 
 export type Sala = {
   nombre: string,
-  id: Id,
-  chat: MensajeType[]
+  id: string,
 }

@@ -1,7 +1,5 @@
 import { createContext, useEffect, useState, type PropsWithChildren } from 'react'
-import type { Id, Sala } from '../types/types';
-import { crearNewId } from '../utils/crearNewId';
-import { SALAS } from '../mocks/mock';
+import type { Sala } from '../types/types';
 import { getMensajes, postMensaje, deleteMensaje } from '../services/mensajes'
 import { getSalas, postSalas, deleteSalas } from '../services/salas'
 
@@ -9,12 +7,12 @@ import { getSalas, postSalas, deleteSalas } from '../services/salas'
 interface SalaContextType {
   salaActiva: Sala | undefined;
   salas: Sala[];
-  agregarMensaje: (texto: string, id: Id) => void;
-  asignarSala: (id: Id) => void;
-  eliminarSala: (id: Id) => void;
+  agregarMensaje: (texto: string, id: string) => void;
+  asignarSala: (id: string) => void;
+  eliminarSala: (id: string) => void;
   crearSala: (nombre: string) => void;
-  vaciarChat: (id: Id) => void;
-  cambiarNombre: (nombre: string, id: Id) => void;
+  vaciarChat: (id: string) => void;
+  cambiarNombre: (nombre: string, id: string) => void;
 }
 
 const defaultContextValue: SalaContextType = {
@@ -44,12 +42,12 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   console.log('mensajes :', listaMensajes);
 
   // MENSAJES
-  function asignarSala (id: Id) {
+  function asignarSala (id: string) {
     const newSala = salas.find(salaDB => salaDB.id === id)
     setSalaActiva(newSala)
   }
   
-  async function agregarMensaje (mensaje: string, usuarioId: Id, salaId) {
+  async function agregarMensaje (mensaje: string, usuarioId: string, salaId: string) {
     if (!salaActiva) return
 
     const newMensaje = { usuarioId, mensaje, salaId }
@@ -61,7 +59,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
 
 
   // SALAS
-  async function eliminarSala(id: Id) {
+  async function eliminarSala(id: string) {
   try {
     const mensajesAEliminar = listaMensajes.filter(msj => msj.salaId === id);
     

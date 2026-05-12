@@ -40,7 +40,7 @@ export const CajaMensaje = () => {
         placeholder='Escribe aqui ...'
         ref={inputRef}
       />
-      <button> ▶ </button>
+      <button className='boton'> ▶ </button>
     </form>
   )
 }

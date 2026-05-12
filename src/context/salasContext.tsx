@@ -1,38 +1,16 @@
-import { createContext, useEffect, useState, type PropsWithChildren } from 'react'
-import type { Sala } from '../types/types';
+import { useEffect, useState, type PropsWithChildren } from 'react'
+import type { MensajeType, Sala } from '../types/types';
 import { getMensajes, postMensaje, deleteMensaje } from '../services/mensajes'
 import { getSalas, postSalas, deleteSalas } from '../services/salas'
+import { SalasContext, type SalaContextType } from './listOfContexts';
 
 
-interface SalaContextType {
-  salaActiva: Sala | undefined;
-  salas: Sala[];
-  agregarMensaje: (texto: string, id: string) => void;
-  asignarSala: (id: string) => void;
-  eliminarSala: (id: string) => void;
-  crearSala: (nombre: string) => void;
-  vaciarChat: (id: string) => void;
-  cambiarNombre: (nombre: string, id: string) => void;
-}
-
-const defaultContextValue: SalaContextType = {
-  salaActiva: undefined,
-  salas: [],
-  agregarMensaje: () => {},
-  asignarSala: () => {},
-  eliminarSala: () => {},
-  crearSala: () => {},
-  vaciarChat: () => {},
-  cambiarNombre: () => {}
-};
-
-export const SalasContext = createContext<SalaContextType>(defaultContextValue);
 
 export const SalasProvider = ({ children } : PropsWithChildren) => {
-  const [salas, setSalas] = useState([])
-  const [salaActiva, setSalaActiva] = useState<Sala | undefined>()
-  const [listaMensajes, setMensajes] = useState([])
-  
+  const [salas, setSalas] = useState<Sala[] | undefined>([])
+  const [salaActiva, setSalaActiva] = useState<Sala | undefined>(undefined)
+  const [listaMensajes, setMensajes] = useState<MensajeType[] | undefined>([])
+
   useEffect(() => {
     getSalas().then(res => setSalas(res))
     getMensajes().then(res => setMensajes(res))
@@ -43,7 +21,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
 
   // MENSAJES
   function asignarSala (id: string) {
-    const newSala = salas.find(salaDB => salaDB.id === id)
+    const newSala = salas?.find(salaDB => salaDB.id === id)
     setSalaActiva(newSala)
   }
   
@@ -54,23 +32,25 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     
     // ARREGLAR ESTO NO ESTA ESPERANDO !!!
     await postMensaje(newMensaje)
-    setMensajes(prevMsj => prevMsj.concat(newMensaje))
+    setMensajes(prevMsj => prevMsj?.concat(newMensaje))
   }
 
 
   // SALAS
   async function eliminarSala(id: string) {
   try {
-    const mensajesAEliminar = listaMensajes.filter(msj => msj.salaId === id);
+    const mensajesAEliminar = listaMensajes?.filter(msj => msj.salaId === id);
     
-    await Promise.all(mensajesAEliminar.map(msj => deleteMensaje(msj.id)));
+    if (mensajesAEliminar) {
+      await Promise.all(mensajesAEliminar.map(msj => msj.id && deleteMensaje(msj.id)));
+    }
     
-    const mensajesRestantes = listaMensajes.filter(msj => msj.salaId !== id);
+    const mensajesRestantes = listaMensajes?.filter(msj => msj.salaId !== id);
     setMensajes(mensajesRestantes);
 
     await deleteSalas(id);
     
-    const nuevasSalas = salas.filter(sala => sala.id !== id);
+    const nuevasSalas = salas?.filter(sala => sala.id !== id);
     setSalas(nuevasSalas);
     
   } catch (error) {
@@ -79,19 +59,19 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
 }
 
   function crearSala (nombre: string) {
-    if (salas.find(sala => sala.nombre === nombre)) return
+    if (salas?.find(sala => sala.nombre === nombre)) return
 
     const newSala = { nombre }
     postSalas(newSala)
-    setSalas([...salas, newSala])
+    setSalas(prev => prev?.concat(newSala))
   }
 
 
 
 
   // DE MOMENTO NO USAMOS ------------------------------
-  function vaciarChat (id: Id) {
-    const newSalas = salas.map(sala => {
+  function vaciarChat (id: string) {
+    const newSalas = salas?.map(sala => {
       if (sala.id === id) {
         return {...sala, chat: []}
       }
@@ -101,8 +81,8 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     setSalas(newSalas)
   }
 
-  function cambiarNombre (nombre: string, id: Id) {
-    const newSalas = salas.map(sala => {
+  function cambiarNombre (nombre: string, id: string) {
+    const newSalas = salas?.map(sala => {
       if (sala.id === id) {
         return {...sala, nombre}
       }

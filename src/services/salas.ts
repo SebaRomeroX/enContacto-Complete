@@ -1,4 +1,5 @@
 import axios from "axios"
+import type { Sala } from "../types/types"
 const route = 'http://localhost:3001/api/salas'
 
 
@@ -11,7 +12,7 @@ export const getSalas = () => {
     })
 }
 
-export const postSalas = (content) => {
+export const postSalas = (content: Sala) => {
   return axios
     .post(route, content)
     .then(response => {
@@ -20,12 +21,12 @@ export const postSalas = (content) => {
     })
 }
 
-export const deleteSalas = (id) => {
+export const deleteSalas = (id: string) => {
   const rutaDelete = route.concat(`/${id}`)
   
   return axios
   .delete(rutaDelete)
-  .then(response => {
+  .then(() => {
     console.log('Recurso eliminado');
   })
   .catch(error => {

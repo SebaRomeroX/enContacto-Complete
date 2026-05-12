@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
-import { UsuarioContext } from '../../context/usuarioContext'
-import { SalasContext } from '../../context/salasContext'
+import { UsuarioContext } from '../../context/listOfContexts'
+import { SalasContext } from '../../context/listOfContexts'
 
 
 export const CajaMensaje = () => {
@@ -27,6 +27,7 @@ export const CajaMensaje = () => {
     e.preventDefault()
 
     if (!texto || !usuario || !salaActiva) return
+    if (!usuario.id || !salaActiva.id) return
 
     setTexto('')
     agregarMensaje(texto, usuario.id, salaActiva.id)

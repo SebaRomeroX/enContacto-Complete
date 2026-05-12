@@ -1,8 +1,9 @@
 import axios from "axios"
-const route = 'http://localhost:3001/api/mensajes'
+import type { Usuario } from "../types/types"
+const route = 'http://localhost:3001/api/usuarios'
 
 
-export const getMensajes = () => {
+export const getUsuarios = () => {
   return axios
     .get(route)
     .then(response => {
@@ -11,7 +12,7 @@ export const getMensajes = () => {
     })
 }
 
-export const postMensaje = (content) => {
+export const postUsuarios = (content: Usuario) => {
   return axios
     .post(route, content)
     .then(response => {
@@ -20,12 +21,12 @@ export const postMensaje = (content) => {
     })
 }
 
-export const deleteMensaje = (id) => {
+export const deleteUsuario = (id: string) => {
   const rutaDelete = route.concat(`/${id}`)
   
   return axios
   .delete(rutaDelete)
-  .then(response => {
+  .then(() => {
     console.log('Recurso eliminado');
   })
   .catch(error => {

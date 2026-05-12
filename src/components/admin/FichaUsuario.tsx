@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { UsuarioContext } from "../../context/usuarioContext"
+import { UsuarioContext } from "../../context/listOfContexts"
 import type { Usuario } from "../../types/types"
 
 type FichaProps = { usuario: Usuario }
@@ -15,7 +15,12 @@ export const FichaUsuario = ({ usuario }: FichaProps) => {
         <h4>{usuario.nombre}</h4>
       </section>
       <section className='botones'>
-        <button className="boton" onClick={() => eliminarUsuario(usuario.id)}>Eliminar</button>
+        <button
+          className="boton"
+          onClick={() => usuario.id && eliminarUsuario(usuario.id)}
+        >
+          Eliminar
+        </button>
       </section>
     </li>
   )

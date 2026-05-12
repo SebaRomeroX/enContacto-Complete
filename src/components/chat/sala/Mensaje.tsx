@@ -1,7 +1,7 @@
 import { useContext } from "react"
-import { UsuarioContext } from "../../../context/usuarioContext"
-import type { Id, MensajeType } from "../../../types/types"
-import { SalasContext } from "../../../context/salasContext"
+import { UsuarioContext } from "../../../context/listOfContexts"
+import type { MensajeType } from "../../../types/types"
+import { SalasContext } from "../../../context/listOfContexts"
 
 const usuarioFantasma = { foto: '0.png', nombre: 'eliminado'}
 
@@ -12,8 +12,8 @@ export const Mensaje = ({ msj }: MensajeProps) => {
 
   if ( salaActiva?.id !== msj.salaId ) return  
 
-  function getUserName (id: Id) {
-    const user = usuarios.find(user => user.id === id)
+  function getUserName (id: string) {
+    const user = usuarios?.find(user => user.id === id)
     return user
       ? { foto: user.foto, nombre: user.nombre}
       : { foto: usuarioFantasma.foto, nombre: usuarioFantasma.nombre}

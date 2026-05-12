@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef } from 'react'
-import { SalasContext } from '../../../context/salasContext'
+import { SalasContext } from '../../../context/listOfContexts'
 import { Mensaje } from './Mensaje'
 
 export const Chat = () => {

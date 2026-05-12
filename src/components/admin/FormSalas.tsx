@@ -1,5 +1,5 @@
 import { useContext, useState, type FormEvent } from 'react'
-import { SalasContext } from '../../context/salasContext'
+import { SalasContext } from '../../context/listOfContexts'
 
 export const FormSala = () => {
   const { crearSala } = useContext(SalasContext)

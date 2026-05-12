@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { SalasContext } from '../../context/salasContext'
+import { SalasContext } from '../../context/listOfContexts'
 
 export const ListaSalas = () => {
   const { asignarSala, salas } = useContext(SalasContext)
@@ -10,7 +10,7 @@ export const ListaSalas = () => {
       <ul>
         {
           salas?.map(sala => (
-            <li key={sala.id} onClick={() => asignarSala(sala.id)}>
+            <li key={sala.id} onClick={() => sala.id && asignarSala(sala.id)}>
               <h3>{sala.nombre}</h3>
             </li>
           ))

@@ -8,6 +8,7 @@ export const getSalas = () => {
     .get(route)
     .then(response => {
       const { data } = response
+      // console.log(data);
       return data
     })
 }
@@ -17,6 +18,7 @@ export const postSalas = (content: Sala) => {
     .post(route, content)
     .then(response => {
       const { data } = response
+      // console.log(data);
       return data
     })
 }

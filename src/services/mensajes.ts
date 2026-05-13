@@ -8,6 +8,7 @@ export const getMensajes = () => {
     .get(route)
     .then(response => {
       const { data } = response
+      // console.log(data);
       return data
     })
 }
@@ -17,6 +18,7 @@ export const postMensaje = (content: MensajeType) => {
     .post(route, content)
     .then(response => {
       const { data } = response
+      // console.log(data);
       return data
     })
 }

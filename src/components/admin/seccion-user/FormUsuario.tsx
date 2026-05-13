@@ -1,5 +1,5 @@
 import { useContext, useState, type FormEvent } from 'react'
-import { UsuarioContext } from '../../context/listOfContexts'
+import { UsuarioContext } from '../../../context/UsuarioContext'
 
 export const FormUsuario = () => {
   const { crearUsuario } = useContext(UsuarioContext)

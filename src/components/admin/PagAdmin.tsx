@@ -1,17 +1,17 @@
-import './Admin.css'
+import './pagAdmin.css'
 import { useContext } from "react"
-import { SalasContext } from "../../context/listOfContexts"
-import { UsuarioContext } from "../../context/listOfContexts"
+import { UsuarioContext } from "../../context/UsuarioContext"
 import { Link } from 'react-router'
-import { FormUsuario } from './FormUsuario'
-import { FormSala } from './FormSalas'
-import { FichaSala } from './FichaSala'
-import { FichaUsuario } from './FichaUsuario'
-import { RUTAS } from '../../constants/consts'
+import { RUTAS } from '../../constants/rutas'
+import { FichaUsuario } from './seccion-user/FichaUsuario'
+import { FormUsuario } from './seccion-user/FormUsuario'
+import { FichaSala } from './seccion-sala/FichaSala'
+import { FormSala } from './seccion-sala/FormSalas'
+import { SalasContext } from '../../context/salasContext'
 
-export const Admin = () => {
+export const PagAdmin = () => {
   const { salas } = useContext(SalasContext)
-  const { usuarios } = useContext(UsuarioContext)
+  const { listaUsuarios } = useContext(UsuarioContext)
 
   return (
     <section className='admin-page'>
@@ -22,7 +22,7 @@ export const Admin = () => {
       <section>
         <ul className='lista-admin'>
           <h3>Usuarios</h3>
-          { usuarios?.map(usuario =>
+          { listaUsuarios?.map(usuario =>
             <FichaUsuario usuario={usuario} key={usuario.id}/> 
           )}
         </ul>
@@ -32,7 +32,8 @@ export const Admin = () => {
         <ul className='lista-admin'>
           <h3>Salas</h3>
           { salas?.map(sala => (
-            <FichaSala key={sala.id} nombre={sala.nombre} id={sala.id} />
+            sala.id &&
+              <FichaSala key={sala.id} nombre={sala.nombre} id={sala.id} />
           ))}
         </ul>
         <FormSala />

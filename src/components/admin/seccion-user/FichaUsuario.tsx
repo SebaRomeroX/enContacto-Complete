@@ -1,6 +1,6 @@
 import { useContext } from "react"
-import { UsuarioContext } from "../../context/listOfContexts"
-import type { Usuario } from "../../types/types"
+import { UsuarioContext } from "../../../context/UsuarioContext"
+import type { Usuario } from "../../../types/types"
 
 type FichaProps = { usuario: Usuario }
 export const FichaUsuario = ({ usuario }: FichaProps) => {

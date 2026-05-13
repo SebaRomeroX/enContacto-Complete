@@ -1,9 +1,8 @@
-import './Chat.css'
+import './pagChats.css'
 import { ListaSalas } from './ListaSalas'
-import { Chat } from './sala/Chat'
-import { CajaMensaje } from './CajaMensaje'
+import { SalaChat } from './sala/SalaChat'
 import { Link } from 'react-router'
-import { RUTAS } from '../../constants/consts'
+import { RUTAS } from '../../constants/rutas'
 
 export const PaginaChats = () => {
   return (
@@ -14,9 +13,8 @@ export const PaginaChats = () => {
       </section>
       <section className='pantalla' >
         <ListaSalas />
-        <Chat />
+        <SalaChat />
       </section>
-      <CajaMensaje />
     </section>
   )
 }

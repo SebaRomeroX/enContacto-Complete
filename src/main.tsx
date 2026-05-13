@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
-import { UsuarioProvider } from './context/usuarioContext.tsx'
-import { SalasProvider } from './context/salasContext.tsx'
+import { UsuarioProvider } from './context/UsuarioProvider.tsx'
+import { SalasProvider } from './context/SalasProvider.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <UsuarioProvider>

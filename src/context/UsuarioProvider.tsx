@@ -2,8 +2,8 @@ import { useEffect, type PropsWithChildren } from 'react'
 import { useState } from 'react'
 import type { UserRol, Usuario } from '../types/types'
 import { getUsuarios, postUsuarios, deleteUsuario } from '../services/usuarios'
-import { UsuarioContext, type UsuarioContextType } from './UsuarioContext'
-import loginServise from '../services/login'
+import { UsuarioContext, type UsuarioContextType } from './UsuarioContext.tsx'
+import loginServise from '../services/login.ts'
 
 
 export const UsuarioProvider = ({ children }: PropsWithChildren) => {

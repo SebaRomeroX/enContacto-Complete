@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { UsuarioContext } from "../../../context/UsuarioContext"
+import { UsuarioContext } from "../../../context/UsuarioContext.tsx"
 import type { Usuario } from "../../../types/types"
 
 type FichaProps = { usuario: Usuario }

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from 'react'
 import { Mensaje } from './Mensaje'
 import { CajaMensaje } from './CajaMensaje'
-import { SalasContext } from '../../../context/salasContext'
+import { SalasContext } from '../../../context/SalasContext.tsx'
 
 export const SalaChat = () => {
   const { listaMensajes, actualizarMsjs, salaActiva } = useContext(SalasContext)

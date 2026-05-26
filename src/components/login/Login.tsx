@@ -1,7 +1,7 @@
 import './Login.css'
 import { useContext, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
-import { UsuarioContext } from '../../context/UsuarioContext'
+import { UsuarioContext } from '../../context/UsuarioContext.tsx'
 import { RUTAS } from '../../constants/rutas'
 
 const inputsIniciales = {user: '', pass: ''}

@@ -1,9 +1,9 @@
-import { useContext, useState } from "react"
-import { SalasContext } from "../../../context/salasContext"
+import { useContext } from "react"
+import { SalasContext } from "../../../context/SalasContext"
 
 type FichaProp = { nombre: string, id: string }
 export const FichaSala = ({ nombre, id }: FichaProp) => {
-  const { eliminarSala, vaciarChat } = useContext(SalasContext)
+  const { eliminarSala } = useContext(SalasContext)
   // const [editar, setEditar] = useState(false)
 
   return (

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
-import { UsuarioContext } from '../../../context/UsuarioContext'
-import { SalasContext } from '../../../context/salasContext'
+import { UsuarioContext } from '../../../context/UsuarioContext.tsx'
+import { SalasContext } from '../../../context/SalasContext.tsx'
 
 
 export const CajaMensaje = () => {

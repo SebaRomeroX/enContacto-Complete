@@ -2,7 +2,7 @@ import { useEffect, useState, type PropsWithChildren } from 'react'
 import type { MensajeType, Sala } from '../types/types';
 import { getMensajes, postMensaje, deleteMensaje } from '../services/mensajes'
 import { getSalas, postSalas, deleteSalas } from '../services/salas'
-import { SalasContext, type SalaContextType } from './salasContext';
+import { SalasContext, type SalaContextType } from './SalasContext.tsx';
 
 
 

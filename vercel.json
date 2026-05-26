@@ -1,4 +1,3 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
-  "buildCommand": "ls -la src/context/ && vite build"
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

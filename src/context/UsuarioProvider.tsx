@@ -2,7 +2,7 @@ import { useEffect, type PropsWithChildren } from 'react'
 import { useState } from 'react'
 import type { UserRol, Usuario } from '../types/types'
 import { getUsuarios, postUsuarios, deleteUsuario } from '../services/usuarios'
-import { UsuarioContext, type UsuarioContextType } from './UsuarioContext.tsx'
+import { UsuarioContext, type UsuarioContextType } from './usuarioContext.tsx'
 import loginServise from '../services/login.ts'
 
 

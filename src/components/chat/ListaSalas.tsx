@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { SalasContext } from '../../context/SalasContext.tsx'
+import { SalasContext } from '../../context/salasContext.tsx'
 
 export const ListaSalas = () => {
   const { asignarSala, salas } = useContext(SalasContext)

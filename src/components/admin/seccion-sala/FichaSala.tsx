@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { SalasContext } from "../../../context/SalasContext"
+import { SalasContext } from "../../../context/salasContext"
 
 type FichaProp = { nombre: string, id: string }
 export const FichaSala = ({ nombre, id }: FichaProp) => {

@@ -1,13 +1,13 @@
 import './pagAdmin.css'
 import { useContext, useEffect } from "react"
-import { UsuarioContext } from "../../context/UsuarioContext.tsx"
+import { UsuarioContext } from "../../context/usuarioContext.tsx"
 import { Link, useNavigate } from 'react-router'
 import { RUTAS } from '../../constants/rutas'
 import { FichaUsuario } from './seccion-user/FichaUsuario'
 import { FormUsuario } from './seccion-user/FormUsuario'
 import { FichaSala } from './seccion-sala/FichaSala'
 import { FormSala } from './seccion-sala/FormSalas'
-import { SalasContext } from '../../context/SalasContext.tsx'
+import { SalasContext } from '../../context/salasContext.tsx'
 
 export const PagAdmin = () => {
   const { salas } = useContext(SalasContext)

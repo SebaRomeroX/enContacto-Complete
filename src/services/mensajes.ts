@@ -1,6 +1,11 @@
 import axios from "axios"
 import type { MensajeType } from "../types/types"
-const route = 'http://localhost:3001/api/mensajes'
+
+// LOCAL
+// const route = 'http://localhost:3001/api/mensajes'
+
+// ONLINE
+const route = 'https://en-contacto-api.vercel.app/api/mensajes'
 
 
 export const getMensajes = () => {

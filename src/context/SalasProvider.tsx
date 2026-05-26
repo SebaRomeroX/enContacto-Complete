@@ -11,11 +11,17 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   const [salaActiva, setSalaActiva] = useState<Sala | undefined>(undefined)
   const [listaMensajes, setMensajes] = useState<MensajeType[] | undefined>([])
 
+  function actualizarMsjs() {
+    console.log('peticion')
+    getMensajes().then(res => setMensajes(res))
+  }
+
   useEffect(() => {
     getSalas().then(res => setSalas(res))
-    getMensajes().then(res => setMensajes(res))
+    actualizarMsjs()
     // console.log('api salas');
   }, [])
+
 
   // console.log('mensajes :', listaMensajes);
 
@@ -108,6 +114,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   // SALIDA
   const value: SalaContextType = {
     listaMensajes,
+    actualizarMsjs,
     salaActiva,
     salas,
     agregarMensaje,

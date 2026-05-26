@@ -17,6 +17,14 @@
 }
 
 /*--------------------------------------------*/
+
+/* BOTONES HEADER */
+.botones-sesion {
+  display: flex;
+  gap: 1em;
+}
+
+
 /* PANTALLA  */
 
 .pantalla {

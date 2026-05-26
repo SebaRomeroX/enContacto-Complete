@@ -1,5 +1,5 @@
 import './Login.css'
-import { useContext, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useContext, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { UsuarioContext } from '../../context/UsuarioContext'
 import { RUTAS } from '../../constants/rutas'
@@ -12,6 +12,10 @@ export const Login = () => {
   const { logear } = useContext(UsuarioContext)
   const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    localStorage.removeItem('idUser')
+  }, [])
 
   function handleInput (e: ChangeEvent<HTMLInputElement>, campo:string) {
     setInputs(prev => ({...prev, [campo]: e.target.value}))

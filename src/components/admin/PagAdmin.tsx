@@ -1,7 +1,7 @@
 import './pagAdmin.css'
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { UsuarioContext } from "../../context/UsuarioContext"
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { RUTAS } from '../../constants/rutas'
 import { FichaUsuario } from './seccion-user/FichaUsuario'
 import { FormUsuario } from './seccion-user/FormUsuario'
@@ -12,6 +12,11 @@ import { SalasContext } from '../../context/salasContext'
 export const PagAdmin = () => {
   const { salas } = useContext(SalasContext)
   const { listaUsuarios } = useContext(UsuarioContext)
+
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (localStorage.getItem('idUser') !== 'Administrador') navigate(RUTAS.login)
+  }, [])
 
   return (
     <section className='admin-page'>

@@ -4,7 +4,7 @@ import { CajaMensaje } from './CajaMensaje'
 import { SalasContext } from '../../../context/salasContext'
 
 export const SalaChat = () => {
-  const { listaMensajes, salaActiva } = useContext(SalasContext)
+  const { listaMensajes, actualizarMsjs, salaActiva } = useContext(SalasContext)
   const contenedorRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
@@ -12,6 +12,16 @@ export const SalaChat = () => {
       contenedorRef.current.scrollTop = contenedorRef.current.scrollHeight;
     }
   }, [listaMensajes])
+
+  useEffect(() => {
+    const msjInterval = setInterval(() => {
+      actualizarMsjs()
+    }, 3000)
+
+    return () => {
+      clearInterval(msjInterval);
+    }
+  }, [])
 
   if (!salaActiva) {
     return (

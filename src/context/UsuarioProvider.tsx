@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { UserRol, Usuario } from '../types/types'
 import { getUsuarios, postUsuarios, deleteUsuario } from '../services/usuarios'
 import { UsuarioContext, type UsuarioContextType } from './UsuarioContext'
+import loginServise from '../services/login'
 
 
 export const UsuarioProvider = ({ children }: PropsWithChildren) => {
@@ -15,11 +16,8 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
     getUsuarios().then(resUsers => {
       setListaUsuarios(resUsers)
 
-      // USER ADMIN ( TEMPORAL ) -------------------------
-      const usuariosDB: Usuario[] = resUsers
-      // console.log(usuariosDB);
-      
-      setUsuario(usuariosDB?.find(user => user.nombre == 'Administrador'))
+      const usuarioGuardado = localStorage.getItem('idUser')
+      setUsuario(resUsers?.find(user => user.nombre == usuarioGuardado))
     })
   }, [])
 
@@ -47,6 +45,26 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
   }
 
 
+  //------------------
+  // LOGEO
+
+  async function logear (nombre: string, contra: string) {
+    try {
+      const userLoged = await loginServise.login({
+        nombre,
+        contra
+      })
+      
+      setUsuario(listaUsuarios?.find(user => user.nombre == userLoged.nombre))
+      localStorage.setItem('idUser', userLoged.nombre)
+
+      return true
+    } catch(e) {
+      console.log(e)
+      return false
+    }
+  }
+
 
   //----------------
   // SALIDA
@@ -56,6 +74,7 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
     listaUsuarios,
     crearUsuario,
     eliminarUsuario,
+    logear,
   }
 
   return (

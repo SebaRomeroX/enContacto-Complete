@@ -1,4 +1,5 @@
 export const RUTAS = {
   chat: '/',
-  admin: '/admin'
+  admin: '/admin',
+  login: 'login'
 }

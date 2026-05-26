@@ -6,6 +6,7 @@ export interface UsuarioContextType {
   listaUsuarios: Usuario[] | undefined
   crearUsuario: (nombre: string, foto: string) => void
   eliminarUsuario: (id: string) => void
+  logear: (inputs: {user: string, pass: string}) => boolean | undefined
 }
 
 const defaultUsersValue: UsuarioContextType = {
@@ -13,6 +14,7 @@ const defaultUsersValue: UsuarioContextType = {
   listaUsuarios: [],
   crearUsuario: () => {},
   eliminarUsuario: () => {},
+  logear: () => false,
 };
 
 export const UsuarioContext = createContext(defaultUsersValue)

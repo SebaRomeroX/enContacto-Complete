@@ -17,7 +17,7 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
       setListaUsuarios(resUsers)
 
       const usuarioGuardado = localStorage.getItem('idUser')
-      setUsuario(resUsers?.find(user => user.nombre == usuarioGuardado))
+      setUsuario(resUsers?.find((user: { nombre: string }) => user.nombre == usuarioGuardado))
     })
   }, [])
 

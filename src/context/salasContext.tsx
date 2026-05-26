@@ -6,6 +6,7 @@ export interface SalaContextType {
   salaActiva: Sala | undefined;
   salas: Sala[] | undefined;
   agregarMensaje: (mensaje: string, usuarioId: string, salaId: string) => void;
+  actualizarMsjs: () => void
   asignarSala: (id: string) => void;
   eliminarSala: (id: string) => void;
   crearSala: (nombre: string) => void;
@@ -22,7 +23,8 @@ const defaultSalasValue: SalaContextType = {
   eliminarSala: () => {},
   crearSala: () => {},
   vaciarChat: () => {},
-  cambiarNombre: () => {}
+  cambiarNombre: () => {},
+  actualizarMsjs: () => {}
 };
 
 export const SalasContext = createContext<SalaContextType>(defaultSalasValue);

@@ -19,3 +19,8 @@ export type Sala = {
   nombre: string,
   id?: string,
 }
+
+export type Credentials = {
+  nombre: string,
+  contra: string,
+}

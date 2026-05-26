@@ -1,5 +1,5 @@
 import './pagAdmin.css'
-import { useContext, useEffectEvent } from "react"
+import { useContext, useEffect } from "react"
 import { UsuarioContext } from "../../context/UsuarioContext.tsx"
 import { Link, useNavigate } from 'react-router'
 import { RUTAS } from '../../constants/rutas'
@@ -14,7 +14,8 @@ export const PagAdmin = () => {
   const { listaUsuarios } = useContext(UsuarioContext)
 
   const navigate = useNavigate()
-  useEffectEvent(() => {
+  
+  useEffect(() => {
     if (localStorage.getItem('idUser') !== 'Administrador') navigate(RUTAS.login)
   }, [])
 

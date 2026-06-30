@@ -1,3 +1,5 @@
-PROYECTO: enContacto v. Completa
+PROYECTO: enContacto v.Completa
 
-Deploy: https://encontacto.netlify.app/
+Local: pnpm dev
+
+Deploy: https://en-contacto-complete.vercel.app/

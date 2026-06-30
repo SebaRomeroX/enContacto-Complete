@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 ROADMAP.txt
+plan.txt
 
 # Editor directories and files
 .vscode/*

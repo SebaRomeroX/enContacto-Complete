@@ -3,16 +3,18 @@ import { ListaSalas } from './ListaSalas'
 import { SalaChat } from './sala/SalaChat'
 import { Link, useNavigate } from 'react-router'
 import { RUTAS } from '../../constants/rutas'
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
+import { UsuarioContext } from '../../context/usuarioContext.tsx'
 
 
 export const PaginaChats = () => {
   const navigate = useNavigate()
-  const permiso = localStorage.getItem('idUser')
+  const { usuario } = useContext(UsuarioContext)
+  const token = localStorage.getItem('token')
 
   useEffect(() => {
-    if (!permiso) navigate(RUTAS.login)
-  }, [])
+    if (!token) navigate(RUTAS.login)
+  }, [token, navigate])
 
   return (
     <section className='pagina-chats'>
@@ -21,7 +23,7 @@ export const PaginaChats = () => {
 
         <article className='botones-sesion'>
           <Link className='boton' to={RUTAS.login}>Salir</Link>
-          { permiso == 'Administrador' &&
+          { usuario?.rol === 'admin' &&
             <Link className='boton' to={RUTAS.admin}>Administrar</Link>
           }
         </article>

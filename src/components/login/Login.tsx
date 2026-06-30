@@ -14,6 +14,8 @@ export const Login = () => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
     localStorage.removeItem('idUser')
   }, [])
 

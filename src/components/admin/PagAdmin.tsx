@@ -11,13 +11,20 @@ import { SalasContext } from '../../context/salasContext.tsx'
 
 export const PagAdmin = () => {
   const { salas } = useContext(SalasContext)
-  const { listaUsuarios } = useContext(UsuarioContext)
+  const { listaUsuarios, usuario } = useContext(UsuarioContext)
 
   const navigate = useNavigate()
-  
+
   useEffect(() => {
-    if (localStorage.getItem('idUser') !== 'Administrador') navigate(RUTAS.login)
-  }, [])
+    const token = localStorage.getItem('token')
+    if (!token) {
+      navigate(RUTAS.login)
+      return
+    }
+    if (usuario && usuario.rol !== 'admin') {
+      navigate(RUTAS.login)
+    }
+  }, [usuario, navigate])
 
   return (
     <section className='admin-page'>

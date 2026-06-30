@@ -10,14 +10,26 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
   const [listaUsuarios, setListaUsuarios] = useState<Usuario[] | undefined>([])
   const [usuario, setUsuario] = useState<Usuario | undefined>(undefined)
 
-  // console.log('lista users: ', usuarios);
+  console.log('user provider');
 
   useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+
+    console.log('token ', token);
+    
+
     getUsuarios().then(resUsers => {
       setListaUsuarios(resUsers)
 
-      const usuarioGuardado = localStorage.getItem('idUser')
-      setUsuario(resUsers?.find((user: { nombre: string }) => user.nombre == usuarioGuardado))
+      const storedUser = localStorage.getItem('user')
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser)
+        setUsuario(
+          resUsers?.find((u: Usuario) => u.id === parsed.id)
+          ?? resUsers?.find((u: Usuario) => u.nombre === parsed.nombre)
+        )
+      }
     })
   }, [])
 

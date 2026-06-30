@@ -10,17 +10,12 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
   const [listaUsuarios, setListaUsuarios] = useState<Usuario[] | undefined>([])
   const [usuario, setUsuario] = useState<Usuario | undefined>(undefined)
 
-  console.log('user provider');
-
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) return
-
-    console.log('token ', token);
-    
-
     getUsuarios().then(resUsers => {
       setListaUsuarios(resUsers)
+
+      const token = localStorage.getItem('token')
+      if (!token) return
 
       const storedUser = localStorage.getItem('user')
       if (storedUser) {
@@ -62,13 +57,15 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
 
   async function logear (nombre: string, contra: string) {
     try {
-      const userLoged = await loginServise.login({
-        nombre,
-        contra
-      })
-      
-      setUsuario(listaUsuarios?.find(user => user.nombre == userLoged.nombre))
-      localStorage.setItem('idUser', userLoged.nombre)
+      const userLoged = await loginServise.login({ nombre, contra })
+
+      const userEncontrado = listaUsuarios?.find(user => user.nombre == userLoged.nombre)
+      setUsuario(userEncontrado ?? userLoged)
+
+      if (!listaUsuarios?.length) {
+        const resUsers = await getUsuarios()
+        setListaUsuarios(resUsers)
+      }
 
       return true
     } catch(e) {

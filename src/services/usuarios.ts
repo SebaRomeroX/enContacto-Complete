@@ -1,42 +1,16 @@
-import axios from "axios"
-import type { Usuario } from "../types/types"
-
-// LOCAL
-// const route = 'http://localhost:3001/api/usuarios'
-
-// ONLINE
-const route = 'https://en-contacto-api.vercel.app/api/usuarios'
-
+import apiClient from './apiClient'
+import type { Usuario } from '../types/types'
 
 export const getUsuarios = () => {
-  return axios
-    .get(route)
-    .then(response => {
-      const { data } = response
-      // console.log(data);
-      return data
-    })
+  return apiClient.get('/usuarios').then(res => res.data)
 }
 
 export const postUsuarios = (content: Usuario) => {
-  return axios
-    .post(route, content)
-    .then(response => {
-      const { data } = response
-      // console.log(data);
-      return data
-    })
+  return apiClient.post('/usuarios', content).then(res => res.data)
 }
 
 export const deleteUsuario = (id: string) => {
-  const rutaDelete = route.concat(`/${id}`)
-  
-  return axios
-  .delete(rutaDelete)
-  .then(() => {
-    console.log('Recurso eliminado');
-  })
-  .catch(error => {
-    console.error('Error al eliminar', error);
-  });
+  return apiClient.delete(`/usuarios/${id}`)
+    .then(() => console.log('Recurso eliminado'))
+    .catch(error => console.error('Error al eliminar', error))
 }

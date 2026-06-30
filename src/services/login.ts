@@ -1,14 +1,10 @@
-import axios from "axios"
-import type { Credentials } from "../types/types"
-
-// LOCAL
-// const route = 'http://localhost:3001/api/login'
-
-// ONLINE
-const route = 'https://en-contacto-api.vercel.app/api/login'
+import apiClient from './apiClient'
+import type { Credentials } from '../types/types'
 
 const login = async (credentials: Credentials) => {
-  const { data } = await axios.post(route, credentials)
+  const { data } = await apiClient.post('/login', credentials)
+  localStorage.setItem('token', data.token)
+  localStorage.setItem('user', JSON.stringify(data))
   return data
 }
 

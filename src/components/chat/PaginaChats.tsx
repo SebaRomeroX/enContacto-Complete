@@ -5,15 +5,18 @@ import { Link, useNavigate } from 'react-router'
 import { RUTAS } from '../../constants/rutas'
 import { useContext, useEffect } from 'react'
 import { UsuarioContext } from '../../context/usuarioContext.tsx'
+import { SalasContext } from '../../context/salasContext.tsx'
 
 
 export const PaginaChats = () => {
   const navigate = useNavigate()
   const { usuario } = useContext(UsuarioContext)
+  const { asignarSala } = useContext(SalasContext)
   const token = localStorage.getItem('token')
 
   useEffect(() => {
     if (!token) navigate(RUTAS.login)
+    return () => asignarSala(undefined)
   }, [token, navigate])
 
   return (

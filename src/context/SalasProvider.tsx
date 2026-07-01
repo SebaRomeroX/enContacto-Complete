@@ -12,15 +12,26 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   const [listaMensajes, setMensajes] = useState<MensajeType[] | undefined>([])
 
   function actualizarMsjs() {
-    console.log('peticion')
+    // console.log('actualizar msj');
     getMensajes().then(res => setMensajes(res))
   }
 
   useEffect(() => {
     getSalas().then(res => setSalas(res))
-    actualizarMsjs()
-    // console.log('api salas');
+
+    console.log('precarga msj');
+    // lo dejo como precarga, luego ver si es necesario
+    actualizarMsjs() 
   }, [])
+
+  useEffect(() => {
+    if (!salaActiva) return
+
+    actualizarMsjs()
+
+    const intervalo = setInterval(actualizarMsjs, 3000)
+    return () => clearInterval(intervalo)
+  }, [salaActiva])
 
 
   // console.log('mensajes :', listaMensajes);
@@ -29,7 +40,11 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
 
   // SALA ACTIVA
   
-  function asignarSala (id: string) {
+  function asignarSala (id: string | undefined) {
+    if (!id) {
+      setSalaActiva(undefined)
+      return
+    }
     const newSala = salas?.find(salaDB => salaDB.id === id)
     setSalaActiva(newSala)
   }

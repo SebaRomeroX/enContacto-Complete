@@ -7,7 +7,7 @@ export interface SalaContextType {
   salas: Sala[] | undefined;
   agregarMensaje: (mensaje: string, usuarioId: string, salaId: string) => void;
   actualizarMsjs: () => void
-  asignarSala: (id: string) => void;
+  asignarSala: (id: string | undefined) => void;
   eliminarSala: (id: string) => void;
   crearSala: (nombre: string) => void;
   vaciarChat: (id: string) => void;

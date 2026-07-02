@@ -8,15 +8,19 @@ import { FormUsuario } from './seccion-user/FormUsuario'
 import { FichaSala } from './seccion-sala/FichaSala'
 import { FormSala } from './seccion-sala/FormSalas'
 import { SalasContext } from '../../context/salasContext.tsx'
+import { PantallaLoading } from '../PantallaLoading'
 
 export const PagAdmin = () => {
   const { salas } = useContext(SalasContext)
-  const { listaUsuarios, usuario } = useContext(UsuarioContext)
+  const { listaUsuarios, usuario, isLoading: usersLoading } = useContext(UsuarioContext)
+  const { isLoading: salasLoading } = useContext(SalasContext)
 
   const navigate = useNavigate()
+  const token = localStorage.getItem('token')
+
+  const loading = token && (usersLoading || salasLoading)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
     if (!token) {
       navigate(RUTAS.login)
       return
@@ -26,8 +30,10 @@ export const PagAdmin = () => {
     }
   }, [usuario, navigate])
 
+  if (loading) return <PantallaLoading isLoading={loading} />
+
   return (
-    <section className='admin-page'>
+    <section className='admin-page fade-in'>
       <section className='admin-header'>
         <h2>Administrador</h2>
         <Link className='boton' to={RUTAS.chat}>Volver a salas</Link>

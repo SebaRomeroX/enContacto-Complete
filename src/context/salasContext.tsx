@@ -12,6 +12,7 @@ export interface SalaContextType {
   crearSala: (nombre: string) => void;
   vaciarChat: (id: string) => void;
   cambiarNombre: (nombre: string, id: string) => void;
+  isLoading: boolean
 }
 
 const defaultSalasValue: SalaContextType = {
@@ -24,7 +25,8 @@ const defaultSalasValue: SalaContextType = {
   crearSala: () => {},
   vaciarChat: () => {},
   cambiarNombre: () => {},
-  actualizarMsjs: () => {}
+  actualizarMsjs: () => {},
+  isLoading: true,
 };
 
 export const SalasContext = createContext<SalaContextType>(defaultSalasValue);

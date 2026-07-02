@@ -43,7 +43,7 @@ export const Login = () => {
   }
 
   return (
-    <section className='log-section'>
+    <section className='log-section fade-in'>
       <h2>Inicio de Sesion</h2>
       <form className='formulario' onSubmit={handleLog}>
         <input

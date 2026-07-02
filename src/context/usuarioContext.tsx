@@ -7,6 +7,7 @@ export interface UsuarioContextType {
   crearUsuario: (nombre: string, foto: string) => void
   eliminarUsuario: (id: string) => void
   logear: (nombre: string, contra: string) => Promise<boolean>
+  isLoading: boolean
 }
 
 const defaultUsersValue: UsuarioContextType = {
@@ -14,7 +15,8 @@ const defaultUsersValue: UsuarioContextType = {
   listaUsuarios: [],
   crearUsuario: () => {},
   eliminarUsuario: () => {},
-  logear: async () => false
+  logear: async () => false,
+  isLoading: true,
 };
 
 export const UsuarioContext = createContext(defaultUsersValue)

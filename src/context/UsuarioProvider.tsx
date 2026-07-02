@@ -9,6 +9,7 @@ import loginServise from '../services/login.ts'
 export const UsuarioProvider = ({ children }: PropsWithChildren) => {
   const [listaUsuarios, setListaUsuarios] = useState<Usuario[] | undefined>([])
   const [usuario, setUsuario] = useState<Usuario | undefined>(undefined)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     getUsuarios().then(resUsers => {
@@ -25,7 +26,7 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
           ?? resUsers?.find((u: Usuario) => u.nombre === parsed.nombre)
         )
       }
-    })
+    }).finally(() => setIsLoading(false))
   }, [])
 
 
@@ -84,6 +85,7 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
     crearUsuario,
     eliminarUsuario,
     logear,
+    isLoading,
   }
 
   return (

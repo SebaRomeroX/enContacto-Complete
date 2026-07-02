@@ -10,6 +10,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   const [salas, setSalas] = useState<Sala[] | undefined>([])
   const [salaActiva, setSalaActiva] = useState<Sala | undefined>(undefined)
   const [listaMensajes, setMensajes] = useState<MensajeType[] | undefined>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   function actualizarMsjs() {
     // console.log('actualizar msj');
@@ -17,11 +18,10 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   }
 
   useEffect(() => {
-    getSalas().then(res => setSalas(res))
-
-    console.log('precarga msj');
-    // lo dejo como precarga, luego ver si es necesario
-    actualizarMsjs() 
+    Promise.all([
+      getSalas().then(res => setSalas(res)),
+      getMensajes().then(res => setMensajes(res)),
+    ]).finally(() => setIsLoading(false))
   }, [])
 
   useEffect(() => {
@@ -137,7 +137,8 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     eliminarSala,
     crearSala,
     vaciarChat,
-    cambiarNombre
+    cambiarNombre,
+    isLoading,
   };
 
   return (

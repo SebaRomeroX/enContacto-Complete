@@ -1,6 +1,7 @@
 import { useContext } from "react"
 import type { MensajeType } from "../../../types/types"
 import { UsuarioContext } from "../../../context/usuarioContext.tsx"
+import './mensaje.css'
 
 const usuarioFantasma = { foto: 'no-foto.png', nombre: 'eliminado'}
 

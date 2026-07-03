@@ -1,18 +1,18 @@
 import type { ReactNode } from "react"
+import './ficha.css'
 
 type FichaProps = {
   children: ReactNode
   onDelete: () => void
-  contenidoClassName?: string
 }
 
-export const Ficha = ({ children, onDelete, contenidoClassName }: FichaProps) => {
+export const Ficha = ({ children, onDelete }: FichaProps) => {
   return (
-    <li>
-      <section className={contenidoClassName}>
+    <li className="ficha">
+      <section className="ficha__content">
         {children}
       </section>
-      <section className='botones'>
+      <section className="ficha__actions">
         <button className="boton" onClick={onDelete}>
           Eliminar
         </button>

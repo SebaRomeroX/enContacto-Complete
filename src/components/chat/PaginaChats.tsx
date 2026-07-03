@@ -1,4 +1,4 @@
-import './pagChats.css'
+import './paginaChats.css'
 import { ListaSalas } from './ListaSalas'
 import { SalaChat } from './sala/SalaChat'
 import { Link, useNavigate } from 'react-router'
@@ -27,7 +27,7 @@ export const PaginaChats = () => {
   return (
     <section className='pagina-chats fade-in'>
       <section className='chats-header'>
-        <h2>EnContacto</h2>
+        <h2>enContacto</h2>
 
         <article className='botones-sesion'>
           <Link className='boton' to={RUTAS.login}>Salir</Link>

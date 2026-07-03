@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef } from 'react'
 import { Mensaje } from './Mensaje'
 import { CajaMensaje } from './CajaMensaje'
 import { SalasContext } from '../../../context/salasContext.tsx'
+import './salaChat.css'
 
 export const SalaChat = () => {
   const { listaMensajes, salaActiva } = useContext(SalasContext)

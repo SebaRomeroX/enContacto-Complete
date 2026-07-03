@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
-import './App.css'
 import { PaginaChats } from './components/chat/PaginaChats'
 import { PagAdmin } from './components/admin/PagAdmin'
 import { Login } from './components/login/Login'

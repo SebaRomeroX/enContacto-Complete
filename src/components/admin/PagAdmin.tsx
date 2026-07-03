@@ -60,7 +60,6 @@ export const PagAdmin = () => {
               <Ficha
                 key={u.id}
                 onDelete={() => u.id && eliminarUsuario(u.id)}
-                contenidoClassName="info-user"
               >
                 <img src={u.foto} />
                 <h4>{u.nombre}</h4>

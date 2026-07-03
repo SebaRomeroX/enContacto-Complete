@@ -1,0 +1,28 @@
+.lista-salas-section {
+  background-color: var(--color-oscuro);
+  padding: 1em .6em;
+}
+
+.lista-salas-section h2 {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+.lista-salas-section ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.lista-salas-section li {
+  list-style: none;
+  border-bottom: 1px solid rgb(114, 117, 121);
+  cursor: pointer;
+}
+
+@media all and (min-width:1024px) {
+  .lista-salas-section {
+    padding: 1em 2em;
+  }
+}

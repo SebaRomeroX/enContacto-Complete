@@ -1,0 +1,32 @@
+.sala {
+  width: 100%;
+}
+
+.chat-section {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  height: 89vh;
+  padding: 1em;
+  overflow-y: auto;
+}
+
+.chat-section li {
+  width: fit-content;
+  display: flex;
+  gap: 1em;
+}
+
+.chat-section img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+@media all and (min-width:1024px) {
+  .sala {
+    max-width: 1124px;
+    padding-left: 4em;
+  }
+}

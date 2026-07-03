@@ -1,0 +1,26 @@
+.caja-mensaje {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: .4em;
+  background-color: black;
+}
+
+.caja-mensaje input {
+  background-color: inherit;
+  width: 80%;
+  height: 50%;
+  color: aliceblue;
+  font-size: 1em;
+  padding: .2em 1em;
+  border-radius: .4em;
+}
+
+.caja-mensaje button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #25D366;
+  font-size: 1.2em;
+  color: rgb(29, 29, 29);
+}

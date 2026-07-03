@@ -2,7 +2,7 @@ import { useContext } from "react"
 import type { MensajeType } from "../../../types/types"
 import { UsuarioContext } from "../../../context/usuarioContext.tsx"
 
-const usuarioFantasma = { foto: '0.png', nombre: 'eliminado'}
+const usuarioFantasma = { foto: 'no-foto.png', nombre: 'eliminado'}
 
 type MensajeProps = { msj: MensajeType }
 export const Mensaje = ({ msj }: MensajeProps) => {

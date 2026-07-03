@@ -1,24 +1,24 @@
 import './pagAdmin.css'
-import { useContext, useEffect } from "react"
+import { useContext, useEffect, useState, type FormEvent } from "react"
 import { UsuarioContext } from "../../context/usuarioContext.tsx"
 import { Link, useNavigate } from 'react-router'
 import { RUTAS } from '../../constants/rutas'
-import { FichaUsuario } from './seccion-user/FichaUsuario'
-import { FormUsuario } from './seccion-user/FormUsuario'
-import { FichaSala } from './seccion-sala/FichaSala'
-import { FormSala } from './seccion-sala/FormSalas'
+import { Ficha } from './Ficha'
+import { FormAdmin } from './FormAdmin'
 import { SalasContext } from '../../context/salasContext.tsx'
 import { PantallaLoading } from '../PantallaLoading'
 
 export const PagAdmin = () => {
-  const { salas } = useContext(SalasContext)
-  const { listaUsuarios, usuario, isLoading: usersLoading } = useContext(UsuarioContext)
+  const { salas, crearSala, eliminarSala } = useContext(SalasContext)
+  const { listaUsuarios, usuario, eliminarUsuario, crearUsuario, isLoading: usersLoading } = useContext(UsuarioContext)
   const { isLoading: salasLoading } = useContext(SalasContext)
 
   const navigate = useNavigate()
   const token = localStorage.getItem('token')
-
   const loading = token && (usersLoading || salasLoading)
+
+  const [nuevoNombreUsuario, setNuevoNombreUsuario] = useState('')
+  const [nuevoNombreSala, setNuevoNombreSala] = useState('')
 
   useEffect(() => {
     if (!token) {
@@ -29,6 +29,20 @@ export const PagAdmin = () => {
       navigate(RUTAS.login)
     }
   }, [usuario, navigate])
+
+  function handleCrearUsuario(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (!nuevoNombreUsuario) return
+    crearUsuario(nuevoNombreUsuario, 'no-foto.png')
+    setNuevoNombreUsuario('')
+  }
+
+  function handleCrearSala(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (!nuevoNombreSala) return
+    crearSala(nuevoNombreSala)
+    setNuevoNombreSala('')
+  }
 
   if (loading) return <PantallaLoading isLoading={loading} />
 
@@ -41,21 +55,55 @@ export const PagAdmin = () => {
       <section>
         <ul className='lista-admin'>
           <h3>Usuarios</h3>
-          { listaUsuarios?.map(usuario =>
-            <FichaUsuario usuario={usuario} key={usuario.id}/> 
+          {listaUsuarios?.map(u =>
+            u.rol !== 'admin' && (
+              <Ficha
+                key={u.id}
+                onDelete={() => u.id && eliminarUsuario(u.id)}
+                contenidoClassName="info-user"
+              >
+                <img src={u.foto} />
+                <h4>{u.nombre}</h4>
+              </Ficha>
+            )
           )}
         </ul>
-        <FormUsuario />
+        <FormAdmin
+          legend="Nuevo Usuario"
+          onSubmit={handleCrearUsuario}
+          campos={[
+            {
+              placeholder: 'Nombre de usuario',
+              value: nuevoNombreUsuario,
+              onChange: setNuevoNombreUsuario,
+              required: true 
+            },
+          ]}
+        />
       </section>
       <section>
         <ul className='lista-admin'>
           <h3>Salas</h3>
-          { salas?.map(sala => (
-            sala.id &&
-              <FichaSala key={sala.id} nombre={sala.nombre} id={sala.id} />
-          ))}
+          {salas?.map(s =>
+            s.id && (
+              <Ficha key={s.id} onDelete={() => eliminarSala(s.id)}>
+                <h4>{s.nombre}</h4>
+              </Ficha>
+            )
+          )}
         </ul>
-        <FormSala />
+        <FormAdmin
+          legend="Nueva Sala"
+          onSubmit={handleCrearSala}
+          campos={[
+            {
+              placeholder: 'Nombre de sala',
+              value: nuevoNombreSala,
+              onChange: setNuevoNombreSala,
+              required: true 
+            },
+          ]}
+        />
       </section>
     </section>
   )

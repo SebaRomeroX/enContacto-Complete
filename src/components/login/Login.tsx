@@ -6,10 +6,12 @@ import { RUTAS } from '../../constants/rutas'
 
 const inputsIniciales = {user: '', pass: ''}
 
+import { Header } from '../Header'
+
 export const Login = () => {
   const [inputs, setInputs] = useState(inputsIniciales)
   const [error, setError] = useState('')
-  const { logear } = useContext(UsuarioContext)
+  const { logear, cerrarSesion } = useContext(UsuarioContext)
   const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -17,6 +19,7 @@ export const Login = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     localStorage.removeItem('idUser')
+    cerrarSesion()
   }, [])
 
   function handleInput (e: ChangeEvent<HTMLInputElement>, campo:string) {
@@ -43,30 +46,33 @@ export const Login = () => {
   }
 
   return (
-    <section className='log-section fade-in'>
-      <h2>Inicio de Sesion</h2>
-      <form className='formulario' onSubmit={handleLog}>
-        <input
-          type='text'
-          placeholder='usuario'
-          onChange={(e) => handleInput(e, 'user')}
-          value={inputs.user}
-          autoFocus
-          required
-          ref={inputRef}
-          className='input-texto'
-        />
-        <input
-          type='password'
-          placeholder='contraseña'
-          onChange={(e) => handleInput(e, 'pass')}
-          value={inputs.pass}
-          required
-          className='input-texto'
-        />
-        { error && <p className='error'>{error}</p> }
-        <button className='boton'>Entrar</button>
-      </form>
-    </section>
+    <>
+      <Header />
+      <section className='log-section fade-in'>
+        <h2>Inicio de Sesion</h2>
+        <form className='formulario' onSubmit={handleLog}>
+          <input
+            type='text'
+            placeholder='usuario'
+            onChange={(e) => handleInput(e, 'user')}
+            value={inputs.user}
+            autoFocus
+            required
+            ref={inputRef}
+            className='input-texto'
+          />
+          <input
+            type='password'
+            placeholder='contraseña'
+            onChange={(e) => handleInput(e, 'pass')}
+            value={inputs.pass}
+            required
+            className='input-texto'
+          />
+          { error && <p className='error'>{error}</p> }
+          <button className='boton'>Entrar</button>
+        </form>
+      </section>
+    </>
   )
 }

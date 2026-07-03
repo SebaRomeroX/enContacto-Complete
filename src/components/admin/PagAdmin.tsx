@@ -1,12 +1,13 @@
 import './pagAdmin.css'
 import { useContext, useEffect, useState, type FormEvent } from "react"
 import { UsuarioContext } from "../../context/usuarioContext.tsx"
-import { Link, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { RUTAS } from '../../constants/rutas'
 import { Ficha } from './Ficha'
 import { FormAdmin } from './FormAdmin'
 import { SalasContext } from '../../context/salasContext.tsx'
 import { PantallaLoading } from '../PantallaLoading'
+import { Header } from '../Header'
 
 export const PagAdmin = () => {
   const { salas, crearSala, eliminarSala } = useContext(SalasContext)
@@ -48,10 +49,7 @@ export const PagAdmin = () => {
 
   return (
     <section className='admin-page fade-in'>
-      <section className='admin-header'>
-        <h2>Administrador</h2>
-        <Link className='boton' to={RUTAS.chat}>Volver a salas</Link>
-      </section>
+      <Header />
       <section>
         <ul className='lista-admin'>
           <h3>Usuarios</h3>

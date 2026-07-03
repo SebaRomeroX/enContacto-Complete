@@ -79,12 +79,17 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
   //----------------
   // SALIDA
 
+  function cerrarSesion() {
+    setUsuario(undefined)
+  }
+
   const value: UsuarioContextType = {
     usuario,
     listaUsuarios,
     crearUsuario,
     eliminarUsuario,
     logear,
+    cerrarSesion,
     isLoading,
   }
 

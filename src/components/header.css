@@ -1,0 +1,14 @@
+.header {
+  background-color: var(--color-oscuro);
+  border-bottom: 1px solid var(--color-medio);
+  color: var(--color-marca);
+  padding: 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.botones-sesion {
+  display: flex;
+  gap: 1em;
+}

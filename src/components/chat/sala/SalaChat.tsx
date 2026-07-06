@@ -29,7 +29,7 @@ export const SalaChat = () => {
       <section className="sala">
         <ul className="chat-section" ref={contenedorRef}>
           <h2>{salaActiva?.nombre}</h2>
-          { msjsPertenecen?.map((msj, index) => <Mensaje key={index} msj={msj} /> )}
+          { msjsPertenecen?.map((msj, index) => <Mensaje key={msj.id} msj={msj} /> )}
         </ul>
         <CajaMensaje />
       </section>

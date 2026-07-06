@@ -10,10 +10,6 @@ export const CajaMensaje = () => {
   const [texto, setTexto] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    inputRef.current?.focus()
-  })
-
   function handleTexto (e: ChangeEvent<HTMLInputElement>) {
     const newTexto = e.target.value
 

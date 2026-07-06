@@ -29,7 +29,7 @@ export const Login = () => {
   async function handleLog (e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     
-    if (!inputs.user && !inputs.pass) return
+    if (!inputs.user || !inputs.pass) return
 
     try {
       const userLogeado = await logear(inputs.user, inputs.pass)

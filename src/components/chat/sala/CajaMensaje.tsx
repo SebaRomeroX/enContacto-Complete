@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useContext, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { UsuarioContext } from '../../../context/usuarioContext.tsx'
 import { SalasContext } from '../../../context/salasContext.tsx'
 import './cajaMensaje.css'

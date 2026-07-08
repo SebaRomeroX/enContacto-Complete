@@ -13,15 +13,17 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   const [isLoading, setIsLoading] = useState(true)
 
   function actualizarMsjs() {
-    // console.log('actualizar msj');
-    getMensajes().then(res => setMensajes(res))
+    getMensajes()
+      .then(res => setMensajes(res))
+      .catch(err => console.error('Error al actualizar mensajes:', err))
   }
 
   useEffect(() => {
     Promise.all([
       getSalas().then(res => setSalas(res)),
       getMensajes().then(res => setMensajes(res)),
-    ]).finally(() => setIsLoading(false))
+    ]).catch(err => console.error('Error al cargar datos iniciales:', err))
+    .finally(() => setIsLoading(false))
   }, [])
 
   useEffect(() => {
@@ -55,11 +57,13 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   async function agregarMensaje (mensaje: string, usuarioId: string, salaId: string) {
     if (!salaActiva) return
 
-    const newMensaje = { usuarioId, mensaje, salaId }
-    
-    // ARREGLAR ESTO NO ESTA ESPERANDO !!!
-    const savedMensaje = await postMensaje(newMensaje)
-    setMensajes(prevMsj => prevMsj?.concat(savedMensaje))
+    try {
+      const newMensaje = { usuarioId, mensaje, salaId }
+      const savedMensaje = await postMensaje(newMensaje)
+      setMensajes(prevMsj => prevMsj?.concat(savedMensaje))
+    } catch (err) {
+      console.error('Error al agregar mensaje:', err)
+    }
   }
 
 
@@ -90,10 +94,14 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   async function crearSala (nombre: string) {
     if (salas?.find(sala => sala.nombre === nombre)) return
 
-    const newSala = { nombre }
+    try {
+      const newSala = { nombre }
 
-    const savedSala = await postSalas(newSala)
-    setSalas(prev => prev?.concat(savedSala))
+      const savedSala = await postSalas(newSala)
+      setSalas(prev => prev?.concat(savedSala))
+    } catch (err) {
+      console.error('Error al crear sala:', err)
+    }
   }
 
 

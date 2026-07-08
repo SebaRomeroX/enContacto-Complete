@@ -26,7 +26,8 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
           ?? resUsers?.find((u: Usuario) => u.nombre === parsed.nombre)
         )
       }
-    }).finally(() => setIsLoading(false))
+    }).catch(err => console.error('Error al cargar usuarios:', err))
+    .finally(() => setIsLoading(false))
   }, [])
 
 
@@ -37,19 +38,26 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
   async function crearUsuario (nombre: string, foto: string) {
     if (listaUsuarios?.find(user => user.nombre === nombre)) return
 
-    const contra = '777' // ES FIJA ( TEMPORAL )
-    const rol: UserRol = 'user' // SOLO SE CREA USERS
-    const newUsuario = { nombre, foto, contra, rol }
+    try {
+      const contra = '777'
+      const rol: UserRol = 'user'
+      const newUsuario = { nombre, foto, contra, rol }
 
-    const savedUser = await postUsuarios(newUsuario)
-    setListaUsuarios(prev => prev?.concat(savedUser))
+      const savedUser = await postUsuarios(newUsuario)
+      setListaUsuarios(prev => prev?.concat(savedUser))
+    } catch (err) {
+      console.error('Error al crear usuario:', err)
+    }
   }
 
-  function eliminarUsuario (id: string) {
-    deleteUsuario(id)
-
-    const newUsuarios = listaUsuarios?.filter(user => user.id !== id)
-    setListaUsuarios(newUsuarios)
+  async function eliminarUsuario (id: string) {
+    try {
+      await deleteUsuario(id)
+      const newUsuarios = listaUsuarios?.filter(user => user.id !== id)
+      setListaUsuarios(newUsuarios)
+    } catch (err) {
+      console.error('Error al eliminar usuario:', err)
+    }
   }
 
 

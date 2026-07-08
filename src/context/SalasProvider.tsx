@@ -75,7 +75,17 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     const latestMensajes = await getMensajes()
     const mensajesAEliminar = latestMensajes.filter(msj => msj.salaId === id)
 
-    await Promise.all(mensajesAEliminar.map(msj => msj.id && deleteMensaje(msj.id)))
+    await Promise.all(
+      mensajesAEliminar
+        .filter(msj => msj.id)
+        .map(msj => deleteMensaje(msj.id!).catch(() => {}))
+    )
+
+    const mensajesRestantes = await getMensajes()
+    if (mensajesRestantes.some(msj => msj.salaId === id)) {
+      console.error('No se pudieron eliminar todos los mensajes de la sala')
+      return
+    }
 
     await deleteSalas(id)
 

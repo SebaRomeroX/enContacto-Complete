@@ -72,20 +72,17 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
 
   async function eliminarSala(id: string) {
   try {
-    const mensajesAEliminar = listaMensajes?.filter(msj => msj.salaId === id);
-    
-    if (mensajesAEliminar) {
-      await Promise.all(mensajesAEliminar.map(msj => msj.id && deleteMensaje(msj.id)));
-    }
-    
-    const mensajesRestantes = listaMensajes?.filter(msj => msj.salaId !== id);
-    setMensajes(mensajesRestantes);
+    const latestMensajes = await getMensajes()
+    const mensajesAEliminar = latestMensajes.filter(msj => msj.salaId === id)
 
-    await deleteSalas(id);
-    
-    const nuevasSalas = salas?.filter(sala => sala.id !== id);
-    setSalas(nuevasSalas);
-    
+    await Promise.all(mensajesAEliminar.map(msj => msj.id && deleteMensaje(msj.id)))
+
+    await deleteSalas(id)
+
+    const [nuevasSalas, nuevosMensajes] = await Promise.all([getSalas(), getMensajes()])
+    setSalas(nuevasSalas)
+    setMensajes(nuevosMensajes)
+
   } catch (error) {
     console.error('Error al eliminar la sala:', error);
   }

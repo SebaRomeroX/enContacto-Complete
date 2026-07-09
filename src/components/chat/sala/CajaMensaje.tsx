@@ -38,7 +38,11 @@ export const CajaMensaje = () => {
         placeholder='Escribe aqui ...'
         ref={inputRef}
       />
-      <button className='boton'> ▶ </button>
+      <button className='boton' aria-label='Enviar mensaje'>
+        <svg viewBox='0 0 24 24' fill='currentColor'>
+          <path d='M5 4l18 8-18 8V3z' />
+        </svg>
+      </button>
     </form>
   )
 }

@@ -22,7 +22,20 @@
   height: 40px;
   border-radius: 50%;
   background-color: var(--color-marca);
-  font-size: 1.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.caja-mensaje button svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+  flex-shrink: 0;
   color: var(--color-oscuro);
 }
 

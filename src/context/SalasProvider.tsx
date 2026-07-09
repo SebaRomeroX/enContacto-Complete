@@ -71,32 +71,30 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   // SALAS
 
   async function eliminarSala(id: string) {
-  try {
-    const latestMensajes = await getMensajes()
-    const mensajesAEliminar = latestMensajes.filter(msj => msj.salaId === id)
+    try {
+      await deleteSalas(id)
 
-    await Promise.all(
-      mensajesAEliminar
-        .filter(msj => msj.id)
-        .map(msj => deleteMensaje(msj.id!).catch(() => {}))
-    )
+      setSalas(prev => prev?.filter(s => s.id !== id))
+      if (salaActiva?.id === id) setSalaActiva(undefined)
 
-    const mensajesRestantes = await getMensajes()
-    if (mensajesRestantes.some(msj => msj.salaId === id)) {
-      console.error('No se pudieron eliminar todos los mensajes de la sala')
-      return
+      const mensajes = await getMensajes()
+      const mensajesSala = mensajes.filter(msj => msj.salaId === id)
+
+      for (let i = 0; i < mensajesSala.length; i += 3) {
+        const lote = mensajesSala.slice(i, i + 3)
+        await Promise.all(
+          lote
+            .filter(msj => msj.id)
+            .map(msj => deleteMensaje(msj.id!).catch(() => {}))
+        )
+      }
+
+      actualizarMsjs()
+
+    } catch (error) {
+      console.error('Error al eliminar la sala:', error);
     }
-
-    await deleteSalas(id)
-
-    const [nuevasSalas, nuevosMensajes] = await Promise.all([getSalas(), getMensajes()])
-    setSalas(nuevasSalas)
-    setMensajes(nuevosMensajes)
-
-  } catch (error) {
-    console.error('Error al eliminar la sala:', error);
   }
-}
 
   async function crearSala (nombre: string) {
     if (salas?.find(sala => sala.nombre === nombre)) return

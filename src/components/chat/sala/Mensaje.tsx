@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useMemo } from "react"
 import type { MensajeType } from "../../../types/types"
 import { UsuarioContext } from "../../../context/usuarioContext.tsx"
 import './mensaje.css'
@@ -9,14 +9,15 @@ type MensajeProps = { msj: MensajeType }
 export const Mensaje = ({ msj }: MensajeProps) => {
   const { listaUsuarios } = useContext(UsuarioContext)
 
-  function getUserName (id: string) {
-    const user = listaUsuarios?.find(user => user.id === id)
-    return user
-      ? { foto: user.foto, nombre: user.nombre}
-      : { foto: usuarioFantasma.foto, nombre: usuarioFantasma.nombre}
-  }
+  const userMap = useMemo(() => {
+    const map = new Map<string, { foto: string; nombre: string }>()
+    listaUsuarios?.forEach(u => {
+      if (u.id) map.set(u.id, { foto: u.foto, nombre: u.nombre })
+    })
+    return map
+  }, [listaUsuarios])
 
-  const datos = getUserName(msj.usuarioId)
+  const datos = userMap.get(msj.usuarioId) ?? usuarioFantasma
   const mensaje = msj.mensaje
   
   return (

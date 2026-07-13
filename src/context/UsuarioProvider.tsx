@@ -67,15 +67,8 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
   async function logear (nombre: string, contra: string) {
     try {
       const userLoged = await loginService.login({ nombre, contra })
-
       const userEncontrado = listaUsuarios?.find(user => user.nombre == userLoged.nombre)
       setUsuario(userEncontrado ?? userLoged)
-
-      if (!listaUsuarios?.length) {
-        const resUsers = await getUsuarios()
-        setListaUsuarios(resUsers)
-      }
-
       return true
     } catch(e) {
       console.log(e)

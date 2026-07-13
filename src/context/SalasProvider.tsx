@@ -12,19 +12,25 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   const [listaMensajes, setMensajes] = useState<MensajeType[] | undefined>([])
   const [isLoading, setIsLoading] = useState(true)
 
+
   function actualizarMsjs() {
-    getMensajes()
-      .then(res => setMensajes(res))
+    return getMensajes()
+      .then(res => {
+        if (JSON.stringify(res) !== JSON.stringify(listaMensajes)) {
+          setMensajes(res)
+        }
+      })
       .catch(err => console.error('Error al actualizar mensajes:', err))
   }
 
   useEffect(() => {
     Promise.all([
       getSalas().then(res => setSalas(res)),
-      getMensajes().then(res => setMensajes(res)),
+      actualizarMsjs(),
     ]).catch(err => console.error('Error al cargar datos iniciales:', err))
     .finally(() => setIsLoading(false))
   }, [])
+  
 
   useEffect(() => {
     if (!salaActiva) return

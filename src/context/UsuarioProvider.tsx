@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { UserRol, Usuario } from '../types/types'
 import { getUsuarios, postUsuarios, deleteUsuario } from '../services/usuarios'
 import { UsuarioContext, type UsuarioContextType } from './usuarioContext.tsx'
-import loginServise from '../services/login.ts'
+import loginService from '../services/login.ts'
 
 
 export const UsuarioProvider = ({ children }: PropsWithChildren) => {
@@ -66,7 +66,7 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
 
   async function logear (nombre: string, contra: string) {
     try {
-      const userLoged = await loginServise.login({ nombre, contra })
+      const userLoged = await loginService.login({ nombre, contra })
 
       const userEncontrado = listaUsuarios?.find(user => user.nombre == userLoged.nombre)
       setUsuario(userEncontrado ?? userLoged)

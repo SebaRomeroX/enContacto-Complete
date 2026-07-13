@@ -7,12 +7,23 @@ import './salaChat.css'
 export const SalaChat = () => {
   const { listaMensajes, salaActiva } = useContext(SalasContext)
   const contenedorRef = useRef<HTMLUListElement>(null);
+  const cantMsgsAnterior = useRef(0);
+  const salaAnterior = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    if (contenedorRef.current) {
-      contenedorRef.current.scrollTop = contenedorRef.current.scrollHeight;
+    if (!contenedorRef.current) return
+
+    const msjsSala = listaMensajes?.filter(msj => msj.salaId == salaActiva?.id) ?? []
+
+    if (salaActiva?.id !== salaAnterior.current) {
+      contenedorRef.current.scrollTop = contenedorRef.current.scrollHeight
+      salaAnterior.current = salaActiva?.id
+    } else if (msjsSala.length > cantMsgsAnterior.current) {
+      contenedorRef.current.scrollTop = contenedorRef.current.scrollHeight
     }
-  }, [listaMensajes])
+
+    cantMsgsAnterior.current = msjsSala.length
+  }, [listaMensajes, salaActiva])
 
   if (!salaActiva) {
     return (

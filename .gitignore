@@ -13,6 +13,7 @@ dist-ssr
 *.local
 roadmap.txt
 planDeMejoras.txt
+coverage
 
 # Editor directories and files
 .vscode/*

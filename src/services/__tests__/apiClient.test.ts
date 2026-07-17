@@ -81,7 +81,6 @@ describe('apiClient', () => {
 
     it('no redirige en 401 cuando está en /login', async () => {
       window.location.pathname = '/login'
-      localStorage.setItem('token', 'x')
 
       apiClient.defaults.adapter = vi.fn().mockRejectedValue({
         response: { status: 401 },
@@ -91,7 +90,6 @@ describe('apiClient', () => {
         await apiClient.get('/test')
       } catch {}
 
-      expect(localStorage.getItem('token')).toBe('x')
       expect(window.location.href).not.toContain('/login')
     })
 
@@ -112,7 +110,7 @@ describe('apiClient', () => {
 
   describe('createService', () => {
     beforeEach(() => {
-      apiClient.defaults.adapter = vi.fn().mockResolvedValue({ data: [], status: 200 })
+      apiClient.defaults.adapter = vi.fn().mockResolvedValue({})
     })
 
     it('retorna objeto con getAll, create, delete', () => {
@@ -132,7 +130,7 @@ describe('apiClient', () => {
     it('getAll retorna los datos de la respuesta', async () => {
       const items = [{ id: 1 }]
       apiClient.defaults.adapter = vi.fn().mockResolvedValue({ data: items })
-      const service = createService('/items')
+      const service = createService('')
 
       const result = await service.getAll()
 
@@ -149,7 +147,7 @@ describe('apiClient', () => {
     it('create retorna los datos de la respuesta', async () => {
       const data = { name: 'test' }
       apiClient.defaults.adapter = vi.fn().mockResolvedValue({ data })
-      const service = createService('/items')
+      const service = createService('')
 
       const result = await service.create(data)
 

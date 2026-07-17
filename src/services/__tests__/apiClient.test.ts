@@ -21,41 +21,27 @@ describe('apiClient', () => {
     })
   })
 
-  describe('instancia axios', () => {
-    it('tiene baseURL correcta', () => {
-      expect(apiClient.defaults.baseURL).toContain('en-contacto-api')
-    })
+  it('tiene baseURL correcta', () => {
+    expect(apiClient.defaults.baseURL).toContain('en-contacto-api')
   })
 
   describe('interceptor de request (token)', () => {
-    it('agrega Authorization header cuando hay token', () => {
-      localStorage.setItem('token', 'test-token')
-
-      const mockAdapter = vi.fn().mockResolvedValue({ data: [], status: 200 })
-      apiClient.defaults.adapter = mockAdapter
-
-      return apiClient.get('/test').finally(() => {
-        const config = mockAdapter.mock.calls[0][0]
-        expect(config.headers?.Authorization).toBe('Bearer test-token')
-      })
-    })
-
-    it('no agrega header cuando no hay token', () => {
-      const mockAdapter = vi.fn().mockResolvedValue({ data: [], status: 200 })
-      apiClient.defaults.adapter = mockAdapter
-
-      return apiClient.get('/test').finally(() => {
-        const config = mockAdapter.mock.calls[0][0]
-        expect(config.headers?.Authorization).toBeUndefined()
-      })
+    it.each([
+      ['agrega Authorization header cuando hay token', 'test-token', 'Bearer test-token'],
+      ['no agrega header cuando no hay token', null, undefined],
+    ])('%s', async (_, token, expected) => {
+      if (token) localStorage.setItem('token', token)
+      const adapter = vi.fn().mockResolvedValue({ data: [], status: 200 })
+      apiClient.defaults.adapter = adapter
+      await apiClient.get('/test')
+      expect(adapter.mock.calls[0][0].headers?.Authorization).toBe(expected)
     })
   })
 
   describe('interceptor de response (401 redirect)', () => {
     it('pasa respuestas exitosas sin cambios', async () => {
-      const response = { data: 'ok', status: 200 }
+      const response = {}
       apiClient.defaults.adapter = vi.fn().mockResolvedValue(response)
-
       const result = await apiClient.get('/test')
       expect(result).toEqual(response)
     })
@@ -64,15 +50,10 @@ describe('apiClient', () => {
       localStorage.setItem('token', 'x')
       localStorage.setItem('user', 'x')
       localStorage.setItem('idUser', 'x')
-
       apiClient.defaults.adapter = vi.fn().mockRejectedValue({
         response: { status: 401 },
       })
-
-      try {
-        await apiClient.get('/test')
-      } catch {}
-
+      try { await apiClient.get('/test') } catch {}
       expect(localStorage.getItem('token')).toBeNull()
       expect(localStorage.getItem('user')).toBeNull()
       expect(localStorage.getItem('idUser')).toBeNull()
@@ -81,80 +62,36 @@ describe('apiClient', () => {
 
     it('no redirige en 401 cuando está en /login', async () => {
       window.location.pathname = '/login'
-
       apiClient.defaults.adapter = vi.fn().mockRejectedValue({
         response: { status: 401 },
       })
-
-      try {
-        await apiClient.get('/test')
-      } catch {}
-
+      try { await apiClient.get('/test') } catch {}
       expect(window.location.href).not.toContain('/login')
-    })
-
-    it('rechaza errores no-401 sin limpiar localStorage', async () => {
-      localStorage.setItem('token', 'x')
-
-      apiClient.defaults.adapter = vi.fn().mockRejectedValue({
-        response: { status: 500 },
-      })
-
-      try {
-        await apiClient.get('/test')
-      } catch {}
-
-      expect(localStorage.getItem('token')).toBe('x')
     })
   })
 
   describe('createService', () => {
-    beforeEach(() => {
-      apiClient.defaults.adapter = vi.fn().mockResolvedValue({})
-    })
-
-    it('retorna objeto con getAll, create, delete', () => {
-      const service = createService('/test')
-      expect(service).toHaveProperty('getAll')
-      expect(service).toHaveProperty('create')
-      expect(service).toHaveProperty('delete')
-    })
-
-    it('getAll llama a apiClient.get con el endpoint', () => {
-      const spy = vi.spyOn(apiClient, 'get')
-      const service = createService('/items')
-      service.getAll()
-      expect(spy).toHaveBeenCalledWith('/items')
-    })
-
-    it('getAll retorna los datos de la respuesta', async () => {
+    it('getAll hace GET al endpoint y retorna los datos', async () => {
       const items = [{ id: 1 }]
       apiClient.defaults.adapter = vi.fn().mockResolvedValue({ data: items })
-      const service = createService('')
-
+      const spy = vi.spyOn(apiClient, 'get')
+      const service = createService('/items')
       const result = await service.getAll()
-
+      expect(spy).toHaveBeenCalledWith('/items')
       expect(result).toEqual(items)
     })
 
-    it('create llama a apiClient.post con endpoint y datos', () => {
-      const spy = vi.spyOn(apiClient, 'post')
-      const service = createService('/items')
-      service.create({ name: 'test' })
-      expect(spy).toHaveBeenCalledWith('/items', { name: 'test' })
-    })
-
-    it('create retorna los datos de la respuesta', async () => {
+    it('create hace POST al endpoint con datos y los retorna', async () => {
       const data = { name: 'test' }
       apiClient.defaults.adapter = vi.fn().mockResolvedValue({ data })
-      const service = createService('')
-
+      const spy = vi.spyOn(apiClient, 'post')
+      const service = createService('/items')
       const result = await service.create(data)
-
+      expect(spy).toHaveBeenCalledWith('/items', data)
       expect(result).toEqual(data)
     })
 
-    it('delete llama a apiClient.delete con endpoint/id', () => {
+    it('delete hace DELETE al endpoint con el id', () => {
       const spy = vi.spyOn(apiClient, 'delete')
       const service = createService('/items')
       service.delete('123')

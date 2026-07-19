@@ -3,7 +3,7 @@ import { render, act } from '@testing-library/react'
 import { useContext } from 'react'
 import { UsuarioProvider } from '../UsuarioProvider'
 import { UsuarioContext, type UsuarioContextType } from '../usuarioContext'
-import type { Usuario } from '../types/types'
+import type { Usuario } from '../../types/types'
 
 const mockGetUsuarios = vi.hoisted(() => vi.fn())
 const mockPostUsuarios = vi.hoisted(() => vi.fn())

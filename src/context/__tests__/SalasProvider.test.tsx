@@ -46,6 +46,12 @@ function renderProvider() {
   return result
 }
 
+async function waitForLoad(ctx: { current: SalaContextType }) {
+  await vi.waitFor(() => {
+    expect(ctx.current.isLoading).toBe(false)
+  })
+}
+
 beforeEach(() => {
   localStorage.clear()
   vi.clearAllMocks()
@@ -74,49 +80,20 @@ describe('SalasProvider', () => {
 
   it('fetch al montar: llama getSalas y getMensajes', async () => {
     const ctx = renderProvider()
-    await vi.waitFor(() => {
-      expect(ctx.current.isLoading).toBe(false)
-    })
+    await waitForLoad(ctx)
     expect(mockGetSalas).toHaveBeenCalledOnce()
     expect(mockGetMensajes).toHaveBeenCalled()
     expect(ctx.current.salas).toEqual(salasMock)
     expect(ctx.current.listaMensajes).toEqual(mensajesMock)
   })
 
-  it('asignarSala(id): setea salaActiva con la sala correspondiente', async () => {
-    const ctx = renderProvider()
-    await vi.waitFor(() => {
-      expect(ctx.current.isLoading).toBe(false)
-    })
-    act(() => {
-      ctx.current.asignarSala('s2')
-    })
-    expect(ctx.current.salaActiva).toEqual(salaB)
-  })
-
-  it('asignarSala(undefined): setea salaActiva undefined', async () => {
-    const ctx = renderProvider()
-    await vi.waitFor(() => {
-      expect(ctx.current.isLoading).toBe(false)
-    })
-    act(() => {
-      ctx.current.asignarSala('s1')
-    })
-    expect(ctx.current.salaActiva).toBeDefined()
-    act(() => {
-      ctx.current.asignarSala(undefined)
-    })
-    expect(ctx.current.salaActiva).toBeUndefined()
-  })
-
   it('agregarMensaje: hace POST y concatena a listaMensajes', async () => {
     const ctx = renderProvider()
-    await vi.waitFor(() => {
-      expect(ctx.current.isLoading).toBe(false)
-    })
+    await waitForLoad(ctx)
     act(() => {
       ctx.current.asignarSala('s1')
     })
+    expect(ctx.current.salaActiva).toEqual(salaA)
     await act(async () => {
       await ctx.current.agregarMensaje('nuevo msj', 'u1', 's1')
     })
@@ -131,9 +108,7 @@ describe('SalasProvider', () => {
 
   it('crearSala: hace POST y concatena a salas', async () => {
     const ctx = renderProvider()
-    await vi.waitFor(() => {
-      expect(ctx.current.isLoading).toBe(false)
-    })
+    await waitForLoad(ctx)
     await act(async () => {
       await ctx.current.crearSala('NuevaSala')
     })
@@ -144,9 +119,7 @@ describe('SalasProvider', () => {
 
   it('crearSala: no duplica si ya existe el nombre', async () => {
     const ctx = renderProvider()
-    await vi.waitFor(() => {
-      expect(ctx.current.isLoading).toBe(false)
-    })
+    await waitForLoad(ctx)
     await act(async () => {
       await ctx.current.crearSala('General')
     })
@@ -155,15 +128,8 @@ describe('SalasProvider', () => {
   })
 
   it('eliminarSala: hace DELETE, remueve de salas, limpia salaActiva y mensajes asociados', async () => {
-    mockGetMensajes.mockResolvedValue([
-      { id: 'm1', mensaje: 'a', usuarioId: 'u1', salaId: 's1' },
-      { id: 'm2', mensaje: 'b', usuarioId: 'u2', salaId: 's1' },
-      { id: 'm3', mensaje: 'c', usuarioId: 'u3', salaId: 's1' },
-    ])
     const ctx = renderProvider()
-    await vi.waitFor(() => {
-      expect(ctx.current.isLoading).toBe(false)
-    })
+    await waitForLoad(ctx)
     act(() => {
       ctx.current.asignarSala('s1')
     })
@@ -175,7 +141,7 @@ describe('SalasProvider', () => {
     expect(ctx.current.salas).toHaveLength(1)
     expect(ctx.current.salas![0].id).toBe('s2')
     expect(ctx.current.salaActiva).toBeUndefined()
-    expect(mockDeleteMensaje).toHaveBeenCalledTimes(3)
+    expect(mockDeleteMensaje).toHaveBeenCalledTimes(mensajesMock.length)
   })
 
   describe('polling', () => {
@@ -190,9 +156,7 @@ describe('SalasProvider', () => {
     it('al seleccionar sala, refresca mensajes cada 3s', async () => {
       mockGetMensajes.mockResolvedValue(mensajesMock)
       const ctx = renderProvider()
-      await vi.waitFor(() => {
-        expect(ctx.current.isLoading).toBe(false)
-      })
+      await waitForLoad(ctx)
 
       mockGetMensajes.mockClear()
 

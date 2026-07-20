@@ -27,7 +27,7 @@ export const PantallaLoading = ({ isLoading }: { isLoading: boolean }) => {
     <div className='pantalla-loading'>
       <div className='loading-content'>
         <h1 className='loading-marca'>enContacto</h1>
-        <p className='loading-slogan'>Tu equip. Siempre. enContacto</p>
+        <p className='loading-slogan'>Tu equipo. Siempre. enContacto</p>
         <p className='loading-texto'>Cargando...</p>
         <div className='loading-spinner' />
       </div>

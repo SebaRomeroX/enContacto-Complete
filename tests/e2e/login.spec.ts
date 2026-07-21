@@ -1,44 +1,9 @@
 import { test, expect } from '@playwright/test'
-
-const API_BASE = 'https://en-contacto-api.vercel.app/api'
-
-const listaUsuarios = [
-  { id: '1', nombre: 'Admin', foto: 'admin.jpg', contra: '777', rol: 'admin' },
-  { id: '2', nombre: 'Juan', foto: 'juan.jpg', contra: '123', rol: 'user' },
-]
-
-const salasMock = [
-  { id: 's1', nombre: 'General' },
-  { id: 's2', nombre: 'Random' },
-]
-
-const mensajesMock = [
-  { id: 'm1', mensaje: 'hola', usuarioId: '1', salaId: 's1' },
-  { id: 'm2', mensaje: 'chau', usuarioId: '2', salaId: 's1' },
-]
+import { setupAuthRoutes, loginAsAdmin } from './helpers'
 
 test.describe('E2E', () => {
   test.beforeEach(async ({ page }) => {
-    await page.route(`${API_BASE}/login`, async route => {
-      const body = route.request().postDataJSON()
-      if (body.nombre === 'Admin' && body.contra === '777') {
-        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(listaUsuarios[0]) })
-      } else {
-        await route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: 'Credenciales inválidas' }) })
-      }
-    })
-
-    await page.route(`${API_BASE}/usuarios`, async route => {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(listaUsuarios) })
-    })
-
-    await page.route(`${API_BASE}/salas`, async route => {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(salasMock) })
-    })
-
-    await page.route(`${API_BASE}/mensajes`, async route => {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mensajesMock) })
-    })
+    await setupAuthRoutes(page)
   })
 
   test('Login fallido: /login -> credenciales incorrectas -> mensaje error', async ({ page }) => {

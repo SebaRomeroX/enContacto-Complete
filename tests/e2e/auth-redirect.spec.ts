@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test'
-
-const API_BASE = 'https://en-contacto-api.vercel.app/api'
+import { API_BASE } from './helpers'
 
 test.describe('Sin token redirige', () => {
   test.beforeEach(async ({ page }) => {

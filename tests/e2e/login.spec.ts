@@ -53,7 +53,7 @@ test.describe('E2E', () => {
     await expect(page).toHaveURL('/login')
   })
 
-  test('Login -> redirige a /chat con salas visibles -> logout', async ({ page }) => {
+  test('Login -> redirige a /chat con salas visibles -> persistencia de sesion -> logout', async ({ page }) => {
     await page.goto('/login')
     await page.waitForLoadState('networkidle')
 
@@ -71,6 +71,13 @@ test.describe('E2E', () => {
     await expect(page.locator('.lista-salas-section')).toContainText('Salas')
     await expect(page.locator('.lista-salas-section')).toContainText('General')
     await expect(page.locator('.lista-salas-section')).toContainText('Random')
+
+    await page.reload()
+    await page.waitForLoadState('networkidle')
+
+    await expect(page).toHaveURL('/')
+    await expect(page.locator('.lista-salas-section')).toContainText('General')
+    await expect(page.locator('.header')).toContainText('enContacto')
 
     await page.getByRole('link', { name: 'Salir' }).click()
     await page.waitForURL('/login')

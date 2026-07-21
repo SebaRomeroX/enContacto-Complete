@@ -7,6 +7,12 @@
   border: 1px solid var(--color-medio);
 }
 
+.caja-mensaje .error-msg {
+  color: var(--color-marca);
+  font-size: .8em;
+  margin: 0;
+}
+
 .caja-mensaje input {
   background-color: inherit;
   width: 80%;

@@ -61,14 +61,16 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   // MENSAJES
 
   async function agregarMensaje (mensaje: string, usuarioId: string, salaId: string) {
-    if (!salaActiva) return
+    if (!salaActiva) return false
 
     try {
       const newMensaje = { usuarioId, mensaje, salaId }
       const savedMensaje = await postMensaje(newMensaje)
       setMensajes(prevMsj => prevMsj?.concat(savedMensaje))
+      return true
     } catch (err) {
       console.error('Error al agregar mensaje:', err)
+      return false
     }
   }
 

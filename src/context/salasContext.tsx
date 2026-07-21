@@ -5,7 +5,7 @@ export interface SalaContextType {
   listaMensajes: MensajeType[] | undefined
   salaActiva: Sala | undefined;
   salas: Sala[] | undefined;
-  agregarMensaje: (mensaje: string, usuarioId: string, salaId: string) => void;
+  agregarMensaje: (mensaje: string, usuarioId: string, salaId: string) => Promise<boolean>;
   actualizarMsjs: () => void
   asignarSala: (id: string | undefined) => void;
   eliminarSala: (id: string) => void;
@@ -19,7 +19,7 @@ const defaultSalasValue: SalaContextType = {
   listaMensajes: undefined,
   salaActiva: undefined,
   salas: [],
-  agregarMensaje: () => {},
+  agregarMensaje: async () => false,
   asignarSala: () => {},
   eliminarSala: () => {},
   crearSala: () => {},

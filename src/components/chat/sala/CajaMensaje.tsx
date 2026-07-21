@@ -8,6 +8,7 @@ export const CajaMensaje = () => {
   const { usuario } = useContext(UsuarioContext)
   const { agregarMensaje, salaActiva } = useContext(SalasContext)
   const [texto, setTexto] = useState('')
+  const [error, setError] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
   function handleTexto (e: ChangeEvent<HTMLInputElement>) {
@@ -20,18 +21,21 @@ export const CajaMensaje = () => {
     setTexto(newTexto)
   }
 
-  function handleEscribir (e: FormEvent<HTMLFormElement>) {
+  async function handleEscribir (e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
     if (!texto || !usuario || !salaActiva) return
     if (!usuario.id || !salaActiva.id) return
 
     setTexto('')
-    agregarMensaje(texto, usuario.id, salaActiva.id)
+    setError('')
+    const ok = await agregarMensaje(texto, usuario.id, salaActiva.id)
+    if (!ok) setError('Error al enviar el mensaje')
   }
 
   return (
     <form className='caja-mensaje' onSubmit={handleEscribir}>
+      {error && <p className='error-msg'>{error}</p>}
       <input
         value={texto}
         onChange={handleTexto}

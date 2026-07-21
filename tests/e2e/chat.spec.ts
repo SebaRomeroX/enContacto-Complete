@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { setupAuthRoutes, loginAsAdmin } from './helpers'
+import { API_BASE, setupAuthRoutes, loginAsAdmin } from './helpers'
 
 test.describe('Chat', () => {
   test.beforeEach(async ({ page }) => {
@@ -23,5 +23,23 @@ test.describe('Chat', () => {
     await page.waitForLoadState('networkidle')
 
     await expect(page.locator('.sala .chat-section')).toContainText('hola mundo')
+  })
+
+  test('Error de red: al enviar mensaje sin conexion -> feedback visual', async ({ page }) => {
+    await page.locator('.lista-salas-section h3', { hasText: 'General' }).click()
+    await page.waitForLoadState('networkidle')
+
+    await page.route(`${API_BASE}/mensajes`, async route => {
+      if (route.request().method() === 'POST') {
+        await route.abort('internetdisconnected')
+      } else {
+        await route.fallback()
+      }
+    })
+
+    await page.getByPlaceholder('Escribe aqui ...').fill('mensaje sin conexion')
+    await page.getByRole('button', { name: 'Enviar mensaje' }).click()
+
+    await expect(page.locator('.caja-mensaje .error-msg')).toHaveText('Error al enviar el mensaje')
   })
 })

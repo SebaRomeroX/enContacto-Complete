@@ -26,7 +26,7 @@ const salasContextValue: SalaContextType = {
   listaMensajes: [],
   salaActiva: undefined,
   salas: salasMock,
-  agregarMensaje: vi.fn(),
+  agregarMensaje: vi.fn().mockResolvedValue(true),
   actualizarMsjs: vi.fn(),
   asignarSala: vi.fn(),
   eliminarSala: vi.fn(),

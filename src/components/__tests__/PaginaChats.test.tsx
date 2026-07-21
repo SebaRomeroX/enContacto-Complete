@@ -80,6 +80,6 @@ describe('PaginaChats', () => {
     localStorage.setItem('token', 'abc123')
     const { unmount } = renderPaginaChats()
     unmount()
-    expect(salasContextValue.asignarSala).toHaveBeenCalledWith('undefined')
+    expect(salasContextValue.asignarSala).toHaveBeenCalledWith(undefined)
   })
 })

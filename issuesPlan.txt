@@ -1,0 +1,171 @@
+# issuesPlan — enContacto
+
+Plan de trabajo: lista de pendientes para resolver y marcar.
+
+## Leyenda
+
+- `[ ]` pendiente · `[x]` resuelto
+- **URGENTE** — bloquea uso/deploy o expone datos
+- **ALTA** — bug funcional o calidad que rompe DX/CI
+- **MEDIA** — mejora de UX, accesibilidad o rendimiento
+- **BAJA** — feature, refactor o pulido opcional
+
+
+## 🚨 URGENTE
+
+- [ ] **test:run falla (Vitest toma los specs de Playwright)**
+  Situación: `pnpm test:run` sale con exit 1. Vitest corre los archivos `tests/e2e/*.spec.ts` (usan `test.describe` de @playwright/test) porque `vite.config.ts` no excluye esa carpeta. Los 79 tests unitarios pasan, pero 4 archivos e2e rompen el run.
+  Propuesta: en `vite.config.ts` agregar `test.exclude: ['tests/e2e/**', 'node_modules/**', 'dist/**']` (o `test.include: ['src/**/*.test.{ts,tsx}']`) y verificar que `pnpm test:run` pase en 0.
+
+- [ ] **`GET /usuarios` expone la contraseña de todos los usuarios**
+  Situación: el cliente descarga la lista completa de usuarios con el campo `contra` (tipo `Usuario` lo incluye). Cualquier usuario logueado podría leer passwords.
+  Propuesta: que el backend no devuelva `contra` en `/usuarios`, y quitar `contra` del tipo `Usuario` (dejarlo solo en `Credentials`). Marcar como dependencia del backend.
+
+- [ ] **Contraseña hardcodeada `'777'` al crear usuarios**
+  Situación: en `UsuarioProvider.crearUsuario` todos los usuarios se crean con `contra = '777'`; el admin no puede definirla.
+  Propuesta: agregar campo de contraseña en `FormAdmin` al crear usuario, o autogenerar una y mostrarla una sola vez.
+
+- [ ] **JWT almacenado en localStorage**
+  Situación: el token se guarda en `localStorage` (vulnerable a XSS). Además la sesión se restaura comparando un snapshot descargado de usuarios.
+  Propuesta: evaluar httpOnly cookies + refresh tokens (requiere backend). A corto plazo: documentar el riesgo y validar el token con el servidor al iniciar.
+
+
+## 🔴 ALTA
+
+- [ ] **Stale closure en el polling de mensajes**
+  Situación: en `SalasProvider`, `setInterval(actualizarMsjs, 3000)` se crea solo al cambiar `salaActiva`, capturando una `actualizarMsjs` con `listaMensajes` desactualizado. La comparación `JSON.stringify` puede comparar contra un snapshot viejo (renders de más o estado desincronizado).
+  Propuesta: usar `useCallback` para `actualizarMsjs` con `listaMensajes` en deps, o guardar la lista en un `useRef` para comparar contra el valor fresco.
+
+- [ ] **`eliminarSala` borra mensajes en lotes de 3**
+  Situación: al eliminar una sala se borra cada mensaje uno por uno en lotes de 3 (`SalasProvider.eliminarSala`). Con muchas mensajes es lentísimo y genera cientos de requests.
+  Propuesta: borrar mensajes en cascada en el backend (`DELETE /salas/:id` que borre sus mensajes) y en el cliente solo actualizar estado.
+
+- [ ] **Lint: 22 errores y 5 warnings**
+  Situación: `pnpm lint` falla. Incluye `set-state-in-effect` (PantallaLoading), `index` sin usar (SalaChat), `no-explicit-any` en 5 archivos de test, `no-empty` (apiClient.test), missing deps en 4 useEffects, imports sin usar en specs e2e.
+  Propuesta: resolver archivo por archivo hasta `pnpm lint` en 0 y dejar warnings mínimos.
+
+- [ ] **Se pierde el texto al fallar el envío del mensaje**
+  Situación: `CajaMensaje` hace `setTexto('')` antes del `await agregarMensaje`; si falla, el usuario pierde lo escrito y solo ve el error.
+  Propuesta: no limpiar el input hasta confirmar el éxito, o restaurar el texto al fallar.
+
+- [ ] **Doble click envía el mensaje dos veces**
+  Situación: el botón de enviar no tiene estado "enviando"; dos clicks rápidos crean 2 mensajes.
+  Propuesta: estado `enviando` que deshabilite el botón mientras dura el POST (y habilite Enter solo cuando no envíe).
+
+- [ ] **Redirección de rol en `/admin` ocurre tras el render**
+  Situación: `PagAdmin` valida el rol en `useEffect`; un usuario común con token ve (o llega a renderizar) el panel antes de ser redirigido.
+  Propuesta: renderizar `null`/redirigir antes de mostrar contenido cuando `usuario.rol !== 'admin'`, sin esperar al efecto.
+
+
+## 🟡 MEDIA
+
+- [ ] **HTML inválido: `h2` dentro del `<ul>` del chat**
+  Situación: en `SalaChat` el título de la sala (`<h2>`) está dentro de `<ul className="chat-section">`.
+  Propuesta: sacar el `h2` a un contenedor propio (p. ej. `header`/`div`) fuera del `ul`.
+
+- [ ] **Pantalla de carga con duración mínima forzada**
+  Situación: `PantallaLoading` muestra el splash mínimo 2.2s aunque todo cargue rápido, y llama `setVisible(true)` en el efecto (lint error).
+  Propuesta: mostrar el splash solo mientras `isLoading` es true (sin duración mínima, o mucho menor) y derivar `visible` de `isLoading` sin setState en el efecto.
+
+- [ ] **Falta e2e de redirección de usuario no-admin en `/admin`**
+  Situación: `admin.spec.ts` importa `loginAsUser` pero nunca lo usa (lint error). No hay test que asegure que un usuario común no entra al panel.
+  Propuesta: agregar test e2e "login como user → /admin → redirige a /login".
+
+- [ ] **Sin feedback al intentar duplicar sala o usuario**
+  Situación: `crearSala`/`crearUsuario` retornan silenciosamente si el nombre ya existe; el admin no sabe por qué no se creó.
+  Propuesta: retornar un resultado (ok/error) y mostrarlo en el formulario.
+
+- [ ] **URL de API hardcodeada**
+  Situación: `https://en-contacto-api.vercel.app/api` está fija en `apiClient.ts` y en `tests/e2e/helpers.ts`.
+  Propuesta: usar `import.meta.env.VITE_API_URL` con fallback, agregar `.env.example` y documentarlo.
+
+- [ ] **Errores de red/API solo van a console**
+  Situación: los `catch` hacen `console.error`; el usuario no ve nada cuando falla la carga inicial o una acción.
+  Propuesta: estado global de error (toast/banner) usando el `ErrorBoundary` y mensajes por acción.
+
+- [ ] **Sin confirmación al eliminar sala/usuario**
+  Situación: borrar una sala (con todos sus mensajes) o un usuario es inmediato e irreversible.
+  Propuesta: diálogo de confirmación antes de eliminar.
+
+- [ ] **Accesibilidad: imágenes, inputs y lista de salas**
+  Situación: `<img>` sin `alt` (Mensaje, Ficha, PagAdmin); inputs sin `<label>` (solo placeholder); `ListaSalas` usa `<li onClick>` sin `role`/`tabIndex`, no operable por teclado.
+  Propuesta: agregar `alt`, `<label>` visibles/aria-label, y convertir la lista de salas en botones/enlaces accesibles.
+
+- [ ] **Sin estados vacíos**
+  Situación: listas vacías (salas, mensajes, usuarios) se muestran en blanco.
+  Propuesta: mensajes tipo "No hay salas", "Sin mensajes", "No hay usuarios".
+
+- [ ] **Typos y acentos**
+  Situación: "Elige un sala", "Inicio de Sesion", "Escribe aqui ...", "Los datos no coinciden con ningun perfil".
+  Propuesta: corregir redacción y acentuación.
+
+- [ ] **Polling de TODOS los mensajes de todas las salas cada 3s**
+  Situación: `getMensajes()` trae el historial completo y se filtra en el cliente.
+  Propuesta: filtrar por sala en el servidor (`/mensajes?salaId=...`) o usar un endpoint de delta; y evitar el GET inicial duplicado (`actualizarMsjs` se llama 2 veces al montar).
+
+- [ ] **Dead code**
+  Situación: `vaciarChat` y `cambiarNombre` en `SalasProvider` (no se usan); `idUser` en localStorage (nunca se setea); `inputRef` en `CajaMensaje` (nunca se usa).
+  Propuesta: eliminar o reutilizar; limpiar `localStorage` de `idUser` en el interceptor.
+
+- [ ] **`logear` usa `==` y mezcla el objeto de login con el de la lista**
+  Situación: en `UsuarioProvider.logear` se compara con `==` y si no encuentra el usuario en `listaUsuarios` setea el objeto del login (que incluye token).
+  Propuesta: tipar bien el resultado del login (`Usuario` sin token), usar `===` y resolver siempre contra la lista o el payload de login de forma consistente.
+
+
+## 🟢 BAJA
+
+- [ ] **Mensajería "en tiempo real" real**
+  Situación: se usa polling cada 3s; README lo vende como "tiempo real".
+  Propuesta: WebSocket/SSE (requiere backend) o mantener polling pero por sala + backoff.
+
+- [ ] **Timestamps en los mensajes**
+  Situación: los mensajes no muestran hora/fecha.
+  Propuesta: agregar `fecha`/`hora` (backend + tipo `MensajeType`) y mostrarla con separadores de día.
+
+- [ ] **Registro público de usuarios**
+  Situación: el README menciona "Registro de usuarios", pero solo el admin puede crear cuentas (con password fijo).
+  Propuesta: pantalla de registro con password elegida por el usuario (o decidir mantener admin-only y corregir README).
+
+- [ ] **Perfil de usuario**
+  Situación: no hay forma de cambiar foto ni contraseña.
+  Propuesta: sección de perfil con edición (requiere endpoints de update).
+
+- [ ] **Admin: editar salas y usuarios**
+  Situación: solo se puede crear/eliminar; `createService` no tiene `update`/`getOne`.
+  Propuesta: agregar `update`/`getOne` al servicio y UI de edición (nombre de sala, nombre/rol de usuario).
+
+- [ ] **No-leídos y salas simultáneas**
+  Situación: solo se ve una sala a la vez y no hay indicador de actividad.
+  Propuesta: contador de no-leídos por sala y navegación sin recargar.
+
+- [ ] **Editar/borrar mensajes propios, "typing…", "leído"**
+  Situación: mensajes son inmutables y no hay estado de escritura/lectura.
+  Propuesta: acciones por mensaje para el autor y eventos de typing (requiere backend).
+
+- [ ] **Búsqueda de mensajes en la sala**
+  Propuesta: filtro/buscador dentro del historial.
+
+- [ ] **Emojis / markdown básico en mensajes**
+  Propuesta: renderizar emojis y formato simple sin exponer HTML arbitrario (sanitizar).
+
+- [ ] **Adjuntos (imágenes/archivos)**
+  Propuesta: subida de archivos con preview (requiere backend/storage).
+
+- [ ] **Notificaciones y sync entre pestañas**
+  Propuesta: `Notification API` + badge en el título cuando la pestaña está inactiva; `BroadcastChannel` para sincronizar estado entre pestañas.
+
+- [ ] **Paginación / infinite scroll del historial**
+  Situación: se renderiza todo el historial de la sala.
+  Propuesta: cargar mensajes recientes y paginar hacia arriba.
+
+- [ ] **Ruta 404 y meta tags/SEO**
+  Situación: no hay ruta `*` ni `description`/OG en `index.html`.
+  Propuesta: agregar ruta 404 y meta tags.
+
+- [ ] **Tema claro / theming**
+  Situación: todo es oscuro y los tokens son mínimos.
+  Propuesta: ampliar `tokens.css` y agregar variante de tema.
+
+- [ ] **README desactualizado**
+  Situación: dice "Registro de usuarios" y "múltiples salas simultáneamente" que no describen la app actual.
+  Propuesta: alinear README con el estado real del producto.

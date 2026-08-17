@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react"
-import type { MensajeType } from "../../../types/types"
+import type { MensajeType, UsuarioPopulate } from "../../../types/types"
 import { UsuarioContext } from "../../../context/usuarioContext.tsx"
 import './mensaje.css'
 
@@ -17,7 +17,10 @@ export const Mensaje = ({ msj }: MensajeProps) => {
     return map
   }, [listaUsuarios])
 
-  const datos = userMap.get(msj.usuarioId) ?? usuarioFantasma
+  const usuarioPopulate = typeof msj.usuarioId === 'object' && msj.usuarioId !== null
+    ? msj.usuarioId as UsuarioPopulate
+    : undefined
+  const datos = usuarioPopulate ?? (typeof msj.usuarioId === 'string' ? userMap.get(msj.usuarioId) : undefined) ?? usuarioFantasma
   const mensaje = msj.mensaje
   
   return (

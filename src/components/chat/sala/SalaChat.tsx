@@ -2,7 +2,12 @@ import { useContext, useEffect, useRef } from 'react'
 import { Mensaje } from './Mensaje'
 import { CajaMensaje } from './CajaMensaje'
 import { SalasContext } from '../../../context/salasContext.tsx'
+import type { MensajeType } from '../../../types/types'
 import './salaChat.css'
+
+function salaIdDeMensaje(msj: MensajeType) {
+  return typeof msj.salaId === 'object' && msj.salaId !== null ? msj.salaId.id : msj.salaId
+}
 
 export const SalaChat = () => {
   const { listaMensajes, salaActiva } = useContext(SalasContext)
@@ -13,7 +18,7 @@ export const SalaChat = () => {
   useEffect(() => {
     if (!contenedorRef.current) return
 
-    const msjsSala = listaMensajes?.filter(msj => msj.salaId == salaActiva?.id) ?? []
+    const msjsSala = listaMensajes?.filter(msj => salaIdDeMensaje(msj) == salaActiva?.id) ?? []
 
     if (salaActiva?.id !== salaAnterior.current) {
       contenedorRef.current.scrollTop = contenedorRef.current.scrollHeight
@@ -34,13 +39,13 @@ export const SalaChat = () => {
       </section>
     )
   } else {
-    const msjsPertenecen = listaMensajes?.filter(msj => msj.salaId == salaActiva.id) 
+    const msjsPertenecen = listaMensajes?.filter(msj => salaIdDeMensaje(msj) == salaActiva.id) 
     
     return (
       <section className="sala">
         <ul className="chat-section" ref={contenedorRef}>
           <h2>{salaActiva?.nombre}</h2>
-          { msjsPertenecen?.map((msj, index) => <Mensaje key={msj.id} msj={msj} /> )}
+          { msjsPertenecen?.map(msj => <Mensaje key={msj.id} msj={msj} /> )}
         </ul>
         <CajaMensaje />
       </section>

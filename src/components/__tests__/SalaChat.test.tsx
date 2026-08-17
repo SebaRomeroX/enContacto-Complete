@@ -74,4 +74,16 @@ describe('SalaChat', () => {
     expect(screen.getByText('General')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Escribe aqui ...')).toBeInTheDocument()
   })
+
+  it('con salaId populate (objeto): filtra y muestra mensajes de la sala activa', () => {
+    const msjsPopulate: MensajeType[] = [
+      { id: 'm1', mensaje: 'hola', usuarioId: 'u1', salaId: { id: 's1', nombre: 'General' } },
+      { id: 'm2', mensaje: 'chau', usuarioId: 'u2', salaId: { id: 's1', nombre: 'General' } },
+      { id: 'm3', mensaje: 'otra sala', usuarioId: 'u1', salaId: { id: 's2', nombre: 'Random' } },
+    ]
+    renderSalaChat({ listaMensajes: msjsPopulate })
+    expect(screen.getByText('hola')).toBeInTheDocument()
+    expect(screen.getByText('chau')).toBeInTheDocument()
+    expect(screen.queryByText('otra sala')).not.toBeInTheDocument()
+  })
 })

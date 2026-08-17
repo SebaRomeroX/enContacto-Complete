@@ -86,7 +86,10 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
       if (salaActiva?.id === id) setSalaActiva(undefined)
 
       const mensajes = await getMensajes()
-      const mensajesSala = mensajes.filter(msj => msj.salaId === id)
+      const mensajesSala = mensajes.filter(msj => {
+        const salaId = typeof msj.salaId === 'object' && msj.salaId !== null ? msj.salaId.id : msj.salaId
+        return salaId === id
+      })
 
       for (let i = 0; i < mensajesSala.length; i += 3) {
         const lote = mensajesSala.slice(i, i + 3)

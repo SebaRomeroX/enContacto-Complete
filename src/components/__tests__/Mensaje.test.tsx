@@ -46,4 +46,24 @@ describe('Mensaje', () => {
     expect(screen.getByText('mensaje')).toBeInTheDocument()
     expect(screen.getByRole('img')).toHaveAttribute('src', 'no-foto.png')
   })
+
+  it('con usuarioId populate (objeto): muestra nombre y foto del objeto', () => {
+    const msjPopulate: MensajeType = {
+      id: 'm3',
+      mensaje: 'hola desde populate',
+      usuarioId: { id: 'u1', nombre: 'Pepe', foto: 'pepe.jpg' },
+      salaId: 's1',
+    }
+    renderMensaje(msjPopulate, [])
+    expect(screen.getByText('Pepe')).toBeInTheDocument()
+    expect(screen.getByText('hola desde populate')).toBeInTheDocument()
+    expect(screen.getByRole('img')).toHaveAttribute('src', 'pepe.jpg')
+  })
+
+  it('con usuarioId null (usuario eliminado): muestra version "eliminado"', () => {
+    const msjNull: MensajeType = { id: 'm4', mensaje: 'mensaje', usuarioId: null, salaId: 's1' }
+    renderMensaje(msjNull)
+    expect(screen.getByText('eliminado')).toBeInTheDocument()
+    expect(screen.getByRole('img')).toHaveAttribute('src', 'no-foto.png')
+  })
 })

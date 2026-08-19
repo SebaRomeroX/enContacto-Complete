@@ -14,7 +14,7 @@ describe('salas service', () => {
     const spy = vi.spyOn(apiClient, 'post')
     const payload = { nombre: 'sala-test' }
     apiClient.defaults.adapter = vi.fn().mockResolvedValue({ data: payload })
-    await postSalas(payload as any)
+    await postSalas(payload)
     expect(spy).toHaveBeenCalledWith('/salas', payload)
   })
 

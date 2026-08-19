@@ -67,4 +67,13 @@ test.describe('Admin', () => {
     await page.waitForLoadState('networkidle')
     await expect(page.locator('.lista-salas-section')).not.toContainText('NuevaSala')
   })
+
+  test('usuario no-admin: /admin redirige a /login', async ({ page }) => {
+    await loginAsUser(page)
+
+    await page.goto('/admin')
+    await page.waitForLoadState('networkidle')
+
+    await expect(page).toHaveURL('/login')
+  })
 })

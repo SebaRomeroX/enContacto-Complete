@@ -12,9 +12,9 @@ describe('usuarios service', () => {
 
   it('postUsuarios hace POST a /usuarios con los datos', async () => {
     const spy = vi.spyOn(apiClient, 'post')
-    const payload = { nombre: 'test'}
+    const payload = { nombre: 'test', foto: 'a.jpg', contra: '777', rol: 'user' }
     apiClient.defaults.adapter = vi.fn().mockResolvedValue({ data: payload })
-    await postUsuarios(payload as any)
+    await postUsuarios(payload)
     expect(spy).toHaveBeenCalledWith('/usuarios', payload)
   })
 

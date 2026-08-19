@@ -1,5 +1,5 @@
-/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 
@@ -11,5 +11,6 @@ export default defineConfig({
   ],
   test: {
     environment: 'jsdom',
+    exclude: [...configDefaults.exclude, 'tests/e2e/**'],
   },
 })

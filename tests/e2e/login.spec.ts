@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { setupAuthRoutes, loginAsAdmin } from './helpers'
+import { setupAuthRoutes } from './helpers'
 
 test.describe('E2E', () => {
   test.beforeEach(async ({ page }) => {

@@ -53,7 +53,7 @@ describe('apiClient', () => {
       apiClient.defaults.adapter = vi.fn().mockRejectedValue({
         response: { status: 401 },
       })
-      try { await apiClient.get('/test') } catch {}
+      try { await apiClient.get('/test') } catch { /* 401 esperado */ }
       expect(localStorage.getItem('token')).toBeNull()
       expect(localStorage.getItem('user')).toBeNull()
       expect(localStorage.getItem('idUser')).toBeNull()
@@ -65,7 +65,7 @@ describe('apiClient', () => {
       apiClient.defaults.adapter = vi.fn().mockRejectedValue({
         response: { status: 401 },
       })
-      try { await apiClient.get('/test') } catch {}
+      try { await apiClient.get('/test') } catch { /* 401 esperado */ }
       expect(window.location.href).not.toContain('/login')
     })
   })
@@ -89,6 +89,16 @@ describe('apiClient', () => {
       const result = await service.create(data)
       expect(spy).toHaveBeenCalledWith('/items', data)
       expect(result).toEqual(data)
+    })
+
+    it('getById hace GET al endpoint con el id y retorna el recurso', async () => {
+      const item = { id: '123', name: 'test' }
+      apiClient.defaults.adapter = vi.fn().mockResolvedValue({ data: item })
+      const spy = vi.spyOn(apiClient, 'get')
+      const service = createService('/items')
+      const result = await service.getById('123')
+      expect(spy).toHaveBeenCalledWith('/items/123')
+      expect(result).toEqual(item)
     })
 
     it('delete hace DELETE al endpoint con el id', () => {

@@ -15,10 +15,12 @@ const usuarioMock: Usuario = { id: 'u1', nombre: 'Admin', foto: 'a.jpg', contra:
 
 const defaultSalasCtx: SalaContextType = {
   listaMensajes: [],
+  totalMensajes: 0,
   salaActiva: { id: 's1', nombre: 'General' },
   salas: [{ id: 's1', nombre: 'General' }],
   agregarMensaje: vi.fn().mockResolvedValue(true),
   actualizarMsjs: vi.fn(),
+  cargarMasMensajes: vi.fn(),
   asignarSala: vi.fn(),
   eliminarSala: vi.fn(),
   crearSala: vi.fn(),

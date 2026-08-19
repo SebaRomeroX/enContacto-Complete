@@ -11,13 +11,13 @@ const mockDeleteUsuario = vi.hoisted(() => vi.fn())
 const mockLogin = vi.hoisted(() => vi.fn())
 
 vi.mock('../../services/usuarios', () => ({
-  getUsuarios: (...args: any[]) => mockGetUsuarios(...args),
-  postUsuarios: (...args: any[]) => mockPostUsuarios(...args),
-  deleteUsuario: (...args: any[]) => mockDeleteUsuario(...args),
+  getUsuarios: (...args: unknown[]) => mockGetUsuarios(...args),
+  postUsuarios: (...args: unknown[]) => mockPostUsuarios(...args),
+  deleteUsuario: (...args: unknown[]) => mockDeleteUsuario(...args),
 }))
 
 vi.mock('../../services/login', () => ({
-  default: { login: (...args: any[]) => mockLogin(...args) },
+  default: { login: (...args: unknown[]) => mockLogin(...args) },
 }))
 
 const usuarioAdmin: Usuario = { id: '1', nombre: 'Admin', foto: 'admin.jpg', contra: '777', rol: 'admin' }
@@ -42,7 +42,7 @@ beforeEach(() => {
   localStorage.clear()
   vi.clearAllMocks()
   mockGetUsuarios.mockResolvedValue(listaUsuarios)
-  mockPostUsuarios.mockImplementation(async (data: any) => ({ id: '3', ...data }))
+  mockPostUsuarios.mockImplementation(async (data: Usuario) => ({ id: '3', ...data }))
   mockDeleteUsuario.mockResolvedValue(undefined)
   mockLogin.mockResolvedValue({ ...usuarioAdmin, token: 'abc' })
 })
@@ -89,32 +89,45 @@ describe('UsuarioProvider', () => {
     expect(ctx.current.usuario).toEqual(usuarioAdmin)
   })
 
-  it('logear exitoso: llama loginService, setea usuario, retorna true', async () => {
+  it('logear exitoso: llama loginService, setea usuario, retorna "ok"', async () => {
     const ctx = renderProvider()
     await vi.waitFor(() => {
       expect(ctx.current.isLoading).toBe(false)
     })
-    let resultado = false
+    let resultado: string = ''
     await act(async () => {
       resultado = await ctx.current.logear('Admin', '777')
     })
     expect(mockLogin).toHaveBeenCalledWith({ nombre: 'Admin', contra: '777' })
     expect(ctx.current.usuario).toEqual(usuarioAdmin)
-    expect(resultado).toBe(true)
+    expect(resultado).toBe('ok')
   })
 
-  it('logear fallido: no setea usuario, retorna false', async () => {
+  it('logear fallido: no setea usuario, retorna "invalid"', async () => {
     mockLogin.mockRejectedValue(new Error('Credenciales inválidas'))
     const ctx = renderProvider()
     await vi.waitFor(() => {
       expect(ctx.current.isLoading).toBe(false)
     })
-    let resultado = true
+    let resultado: string = 'ok'
     await act(async () => {
       resultado = await ctx.current.logear('Admin', 'wrong')
     })
     expect(ctx.current.usuario).toBeUndefined()
-    expect(resultado).toBe(false)
+    expect(resultado).toBe('invalid')
+  })
+
+  it('logear con 429: retorna "rate"', async () => {
+    mockLogin.mockRejectedValue({ response: { status: 429 } })
+    const ctx = renderProvider()
+    await vi.waitFor(() => {
+      expect(ctx.current.isLoading).toBe(false)
+    })
+    let resultado: string = 'ok'
+    await act(async () => {
+      resultado = await ctx.current.logear('Admin', '777')
+    })
+    expect(resultado).toBe('rate')
   })
 
   it('crearUsuario: hace POST y agrega a listaUsuarios', async () => {

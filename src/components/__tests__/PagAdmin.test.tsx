@@ -24,10 +24,12 @@ const salasMock: Sala[] = [{ id: 's1', nombre: 'General' }]
 
 const salasContextValue: SalaContextType = {
   listaMensajes: [],
+  totalMensajes: 0,
   salaActiva: undefined,
   salas: salasMock,
   agregarMensaje: vi.fn().mockResolvedValue(true),
   actualizarMsjs: vi.fn(),
+  cargarMasMensajes: vi.fn(),
   asignarSala: vi.fn(),
   eliminarSala: vi.fn(),
   crearSala: vi.fn(),

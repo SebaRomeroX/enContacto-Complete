@@ -1,6 +1,6 @@
 import { createService } from './apiClient'
 import type { Sala } from '../types/types'
 
-const { getAll: getSalas, create: postSalas, delete: deleteSalas } = createService<Sala>('/salas')
+const { getAll: getSalas, getById: getSalasById, create: postSalas, delete: deleteSalas } = createService<Sala>('/salas')
 
-export { getSalas, postSalas, deleteSalas }
+export { getSalas, getSalasById, postSalas, deleteSalas }

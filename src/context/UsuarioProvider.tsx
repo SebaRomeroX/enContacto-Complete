@@ -2,7 +2,7 @@ import { useEffect, type PropsWithChildren } from 'react'
 import { useState } from 'react'
 import type { UserRol, Usuario } from '../types/types'
 import { getUsuarios, postUsuarios, deleteUsuario } from '../services/usuarios'
-import { UsuarioContext, type UsuarioContextType } from './usuarioContext.tsx'
+import { UsuarioContext, type LoginResult, type UsuarioContextType } from './usuarioContext.tsx'
 import loginService from '../services/login.ts'
 
 
@@ -47,6 +47,7 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
       setListaUsuarios(prev => prev?.concat(savedUser))
     } catch (err) {
       console.error('Error al crear usuario:', err)
+      throw err
     }
   }
 
@@ -57,6 +58,7 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
       setListaUsuarios(newUsuarios)
     } catch (err) {
       console.error('Error al eliminar usuario:', err)
+      throw err
     }
   }
 
@@ -64,15 +66,17 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
   //------------------
   // LOGEO
 
-  async function logear (nombre: string, contra: string) {
+  async function logear (nombre: string, contra: string): Promise<LoginResult> {
     try {
       const userLoged = await loginService.login({ nombre, contra })
       const userEncontrado = listaUsuarios?.find(user => user.nombre == userLoged.nombre)
       setUsuario(userEncontrado ?? userLoged)
-      return true
+      return 'ok'
     } catch(e) {
+      const status = (e as { response?: { status?: number } })?.response?.status
+      if (status === 429) return 'rate'
       console.log(e)
-      return false
+      return 'invalid'
     }
   }
 

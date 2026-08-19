@@ -1,39 +1,79 @@
-import { useEffect, useState, type PropsWithChildren } from 'react'
+import { useEffect, useRef, useState, type PropsWithChildren } from 'react'
 import type { MensajeType, Sala } from '../types/types';
 import { getMensajes, postMensaje, deleteMensaje } from '../services/mensajes'
 import { getSalas, postSalas, deleteSalas } from '../services/salas'
 import { SalasContext, type SalaContextType } from './salasContext.tsx';
 
-
+function dedupeMensajes(list: MensajeType[]): MensajeType[] {
+  const vistos = new Set<string>()
+  const res: MensajeType[] = []
+  for (const msj of list) {
+    if (!msj.id || !vistos.has(msj.id)) {
+      if (msj.id) vistos.add(msj.id)
+      res.push(msj)
+    }
+  }
+  return res
+}
 
 export const SalasProvider = ({ children } : PropsWithChildren) => {
   const [salas, setSalas] = useState<Sala[] | undefined>([])
   const [salaActiva, setSalaActiva] = useState<Sala | undefined>(undefined)
   const [listaMensajes, setMensajes] = useState<MensajeType[] | undefined>([])
+  const [totalMensajes, setTotalMensajes] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
 
+  const listaMensajesRef = useRef<MensajeType[] | undefined>([])
+  useEffect(() => { listaMensajesRef.current = listaMensajes }, [listaMensajes])
+
+
+  function cargarMensajesSala(salaId: string) {
+    setMensajes([])
+    setTotalMensajes(0)
+    return getMensajes({ salaId, limit: 50 })
+      .then(({ mensajes, total }) => {
+        setMensajes(mensajes)
+        setTotalMensajes(total)
+      })
+      .catch(err => console.error('Error al cargar mensajes de la sala:', err))
+  }
 
   function actualizarMsjs() {
-    return getMensajes()
-      .then(res => {
-        if (JSON.stringify(res) !== JSON.stringify(listaMensajes)) {
-          setMensajes(res)
-        }
+    if (!salaActiva?.id) return Promise.resolve()
+
+    const actual = listaMensajesRef.current ?? []
+    const desde = actual[0]?.date
+
+    return getMensajes({ salaId: salaActiva.id, limit: 50, ...(desde ? { desde } : {}) })
+      .then(({ mensajes, total }) => {
+        setMensajes(prev => dedupeMensajes([...mensajes, ...(prev ?? [])]))
+        setTotalMensajes(total)
       })
       .catch(err => console.error('Error al actualizar mensajes:', err))
   }
 
-  useEffect(() => {
-    Promise.all([
-      getSalas().then(res => setSalas(res)),
-      actualizarMsjs(),
-    ]).catch(err => console.error('Error al cargar datos iniciales:', err))
-    .finally(() => setIsLoading(false))
-  }, [])
-  
+  function cargarMasMensajes() {
+    if (!salaActiva?.id) return Promise.resolve()
+
+    const actual = listaMensajesRef.current ?? []
+    return getMensajes({ salaId: salaActiva.id, limit: 50, offset: actual.length })
+      .then(({ mensajes, total }) => {
+        setMensajes(prev => dedupeMensajes([...(prev ?? []), ...mensajes]))
+        setTotalMensajes(total)
+      })
+      .catch(err => console.error('Error al cargar mensajes anteriores:', err))
+  }
 
   useEffect(() => {
-    if (!salaActiva) return
+    getSalas()
+      .then(res => setSalas(res))
+      .catch(err => console.error('Error al cargar datos iniciales:', err))
+      .finally(() => setIsLoading(false))
+  }, [])
+
+
+  useEffect(() => {
+    if (!salaActiva?.id) return
 
     actualizarMsjs()
 
@@ -42,21 +82,20 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   }, [salaActiva])
 
 
-  // console.log('mensajes :', listaMensajes);
-
-
-
   // SALA ACTIVA
-  
+
   function asignarSala (id: string | undefined) {
     if (!id) {
       setSalaActiva(undefined)
+      setMensajes([])
+      setTotalMensajes(0)
       return
     }
     const newSala = salas?.find(salaDB => salaDB.id === id)
     setSalaActiva(newSala)
+    if (newSala?.id) cargarMensajesSala(newSala.id)
   }
-  
+
 
   // MENSAJES
 
@@ -66,7 +105,8 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     try {
       const newMensaje = { usuarioId, mensaje, salaId }
       const savedMensaje = await postMensaje(newMensaje)
-      setMensajes(prevMsj => prevMsj?.concat(savedMensaje))
+      setMensajes(prev => dedupeMensajes([savedMensaje, ...(prev ?? [])]))
+      setTotalMensajes(prev => prev + 1)
       return true
     } catch (err) {
       console.error('Error al agregar mensaje:', err)
@@ -83,16 +123,23 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
       await deleteSalas(id)
 
       setSalas(prev => prev?.filter(s => s.id !== id))
-      if (salaActiva?.id === id) setSalaActiva(undefined)
+      if (salaActiva?.id === id) {
+        setSalaActiva(undefined)
+        setMensajes([])
+        setTotalMensajes(0)
+      }
 
-      const mensajes = await getMensajes()
-      const mensajesSala = mensajes.filter(msj => {
-        const salaId = typeof msj.salaId === 'object' && msj.salaId !== null ? msj.salaId.id : msj.salaId
-        return salaId === id
-      })
+      let offset = 0
+      const todos: MensajeType[] = []
+      for (;;) {
+        const { mensajes, total } = await getMensajes({ salaId: id, limit: 100, offset })
+        todos.push(...mensajes)
+        offset += mensajes.length
+        if (todos.length >= total || mensajes.length === 0) break
+      }
 
-      for (let i = 0; i < mensajesSala.length; i += 3) {
-        const lote = mensajesSala.slice(i, i + 3)
+      for (let i = 0; i < todos.length; i += 3) {
+        const lote = todos.slice(i, i + 3)
         await Promise.all(
           lote
             .filter(msj => msj.id)
@@ -103,7 +150,8 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
       actualizarMsjs()
 
     } catch (error) {
-      console.error('Error al eliminar la sala:', error);
+      console.error('Error al eliminar la sala:', error)
+      throw error
     }
   }
 
@@ -117,6 +165,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
       setSalas(prev => prev?.concat(savedSala))
     } catch (err) {
       console.error('Error al crear sala:', err)
+      throw err
     }
   }
 
@@ -153,7 +202,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   // SALIDA
   const value: SalaContextType = {
     listaMensajes,
-    actualizarMsjs,
+    totalMensajes,
     salaActiva,
     salas,
     agregarMensaje,
@@ -162,6 +211,8 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     crearSala,
     vaciarChat,
     cambiarNombre,
+    actualizarMsjs,
+    cargarMasMensajes,
     isLoading,
   };
 

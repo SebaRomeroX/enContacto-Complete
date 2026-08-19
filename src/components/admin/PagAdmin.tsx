@@ -9,6 +9,17 @@ import { SalasContext } from '../../context/salasContext.tsx'
 import { PantallaLoading } from '../PantallaLoading'
 import { Header } from '../Header'
 
+function mensajeDeError(err: unknown): string | undefined {
+  const response = (err as { response?: { status?: number, data?: { detalles?: unknown, error?: string } } })?.response
+  if (!response) return undefined
+  if (response.status === 403) return 'No tenes permisos para realizar esta accion'
+  if (response.status === 400) {
+    if (typeof response.data?.detalles === 'string') return response.data.detalles
+    if (typeof response.data?.error === 'string') return response.data.error
+  }
+  return undefined
+}
+
 export const PagAdmin = () => {
   const { salas, crearSala, eliminarSala } = useContext(SalasContext)
   const { listaUsuarios, usuario, eliminarUsuario, crearUsuario, isLoading: usersLoading } = useContext(UsuarioContext)
@@ -20,6 +31,7 @@ export const PagAdmin = () => {
 
   const [nuevoNombreUsuario, setNuevoNombreUsuario] = useState('')
   const [nuevoNombreSala, setNuevoNombreSala] = useState('')
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (!token) {
@@ -31,18 +43,46 @@ export const PagAdmin = () => {
     }
   }, [usuario, navigate])
 
-  function handleCrearUsuario(e: FormEvent<HTMLFormElement>) {
+  async function handleCrearUsuario(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!nuevoNombreUsuario) return
-    crearUsuario(nuevoNombreUsuario, 'no-foto.png')
+    try {
+      await crearUsuario(nuevoNombreUsuario, 'no-foto.png')
+      setError('')
+    } catch (err) {
+      setError(mensajeDeError(err) ?? 'No se pudo crear el usuario')
+    }
     setNuevoNombreUsuario('')
   }
 
-  function handleCrearSala(e: FormEvent<HTMLFormElement>) {
+  async function handleCrearSala(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!nuevoNombreSala) return
-    crearSala(nuevoNombreSala)
+    try {
+      await crearSala(nuevoNombreSala)
+      setError('')
+    } catch (err) {
+      setError(mensajeDeError(err) ?? 'No se pudo crear la sala')
+    }
     setNuevoNombreSala('')
+  }
+
+  async function handleEliminarUsuario(id: string) {
+    try {
+      await eliminarUsuario(id)
+      setError('')
+    } catch (err) {
+      setError(mensajeDeError(err) ?? 'No se pudo eliminar el usuario')
+    }
+  }
+
+  async function handleEliminarSala(id: string) {
+    try {
+      await eliminarSala(id)
+      setError('')
+    } catch (err) {
+      setError(mensajeDeError(err) ?? 'No se pudo eliminar la sala')
+    }
   }
 
   if (loading) return <PantallaLoading isLoading={loading} />
@@ -50,6 +90,7 @@ export const PagAdmin = () => {
   return (
     <section className='admin-page fade-in'>
       <Header />
+      {error && <p className='error-msg'>{error}</p>}
       <section>
         <ul className='lista-admin'>
           <h3>Usuarios</h3>
@@ -57,7 +98,7 @@ export const PagAdmin = () => {
             u.rol !== 'admin' && (
               <Ficha
                 key={u.id}
-                onDelete={() => u.id && eliminarUsuario(u.id)}
+                onDelete={() => u.id && handleEliminarUsuario(u.id)}
               >
                 <img src={u.foto} />
                 <h4>{u.nombre}</h4>
@@ -83,7 +124,7 @@ export const PagAdmin = () => {
           <h3>Salas</h3>
           {salas?.map(s =>
             s.id && (
-              <Ficha key={s.id} onDelete={() => eliminarSala(s.id)}>
+              <Ficha key={s.id} onDelete={() => handleEliminarSala(s.id)}>
                 <h4>{s.nombre}</h4>
               </Ficha>
             )

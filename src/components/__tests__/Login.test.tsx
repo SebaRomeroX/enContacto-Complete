@@ -72,7 +72,7 @@ describe('Login', () => {
   }
 
   it('submit exitoso: navega a /', async () => {
-    mockLogear.mockResolvedValue(true)
+    mockLogear.mockResolvedValue('ok')
     renderLogin()
 
     fireEvent.change(screen.getByPlaceholderText('usuario'), { target: { value: 'Admin' } })
@@ -87,7 +87,7 @@ describe('Login', () => {
   })
 
   it('submit fallido: muestra mensaje de error y hace focus al input', async () => {
-    mockLogear.mockResolvedValue(false)
+    mockLogear.mockResolvedValue('invalid')
     renderLogin()
 
     fireEvent.change(screen.getByPlaceholderText('usuario'), { target: { value: 'Admin' } })
@@ -98,5 +98,19 @@ describe('Login', () => {
       expect(screen.getByText('Los datos no coinciden con ningun perfil')).toBeInTheDocument()
     })
     expect(screen.getByPlaceholderText('usuario')).toHaveFocus()
+  })
+
+  it('submit con rate limit: muestra mensaje de espera', async () => {
+    mockLogear.mockResolvedValue('rate')
+    renderLogin()
+
+    fireEvent.change(screen.getByPlaceholderText('usuario'), { target: { value: 'Admin' } })
+    fireEvent.change(screen.getByPlaceholderText('contraseña'), { target: { value: '777' } })
+    fireEvent.submit(getForm())
+
+    await vi.waitFor(() => {
+      expect(screen.getByText('Demasiados intentos. Espera un momento e intenta de nuevo')).toBeInTheDocument()
+    })
+    expect(mockNavigate).not.toHaveBeenCalled()
   })
 })

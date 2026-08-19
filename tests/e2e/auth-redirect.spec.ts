@@ -52,7 +52,7 @@ test.describe('Sesión expirada (401)', () => {
     await page.locator('.lista-salas-section h3', { hasText: 'General' }).click()
     await page.waitForLoadState('networkidle')
 
-    await page.route(`${API_BASE}/mensajes`, async route => {
+    await page.route(`${API_BASE}/mensajes*`, async route => {
       await route.fulfill({ status: 401 })
     })
 

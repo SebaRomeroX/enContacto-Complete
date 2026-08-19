@@ -1,12 +1,14 @@
 import { createContext } from "react";
 import type { Usuario } from "../types/types";
 
+export type LoginResult = 'ok' | 'invalid' | 'rate'
+
 export interface UsuarioContextType {
   usuario: Usuario | undefined
   listaUsuarios: Usuario[] | undefined
-  crearUsuario: (nombre: string, foto: string) => void
-  eliminarUsuario: (id: string) => void
-  logear: (nombre: string, contra: string) => Promise<boolean>
+  crearUsuario: (nombre: string, foto: string) => Promise<void>
+  eliminarUsuario: (id: string) => Promise<void>
+  logear: (nombre: string, contra: string) => Promise<LoginResult>
   cerrarSesion: () => void
   isLoading: boolean
 }
@@ -14,9 +16,9 @@ export interface UsuarioContextType {
 const defaultUsersValue: UsuarioContextType = {
   usuario: undefined,
   listaUsuarios: [],
-  crearUsuario: () => {},
-  eliminarUsuario: () => {},
-  logear: async () => false,
+  crearUsuario: async () => {},
+  eliminarUsuario: async () => {},
+  logear: async () => 'invalid',
   cerrarSesion: () => {},
   isLoading: true,
 };

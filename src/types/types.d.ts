@@ -1,4 +1,4 @@
-export type UserRol = 'admin' | 'user'
+export type UserRol = 'admin' | 'user' | 'mod'
 
 export type Usuario = {
   id?: string,
@@ -23,7 +23,8 @@ export type MensajeType = {
   mensaje: string,
   usuarioId: string | UsuarioPopulate | null,
   salaId: string | SalaPopulate | null,
-  id?: string
+  id?: string,
+  date?: string,
 }
 
 export type Sala = {

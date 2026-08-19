@@ -21,10 +21,12 @@ const usuarioMock: Usuario = { id: '1', nombre: 'Admin', foto: 'a.jpg', contra: 
 
 const salasContextValue: SalaContextType = {
   listaMensajes: [],
+  totalMensajes: 0,
   salaActiva: undefined,
   salas: [{ id: 's1', nombre: 'General' }],
   agregarMensaje: vi.fn().mockResolvedValue(true),
   actualizarMsjs: vi.fn(),
+  cargarMasMensajes: vi.fn(),
   asignarSala: vi.fn(),
   eliminarSala: vi.fn(),
   crearSala: vi.fn(),

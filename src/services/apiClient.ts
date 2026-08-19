@@ -28,6 +28,7 @@ apiClient.interceptors.response.use(
 export function createService<T>(endpoint: string) {
   return {
     getAll: () => apiClient.get(endpoint).then(res => res.data) as Promise<T[]>,
+    getById: (id: string) => apiClient.get(`${endpoint}/${id}`).then(res => res.data) as Promise<T>,
     create: (data: T) => apiClient.post(endpoint, data).then(res => res.data) as Promise<T>,
     delete: (id: string) => apiClient.delete(`${endpoint}/${id}`),
   }

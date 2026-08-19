@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen, cleanup } from '@testing-library/react'
+import { render, screen, cleanup, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { UsuarioContext } from '../../context/usuarioContext'
 import { SalasContext, type SalaContextType } from '../../context/salasContext'
@@ -21,10 +21,12 @@ const mensajesMock: MensajeType[] = [
 
 const defaultSalasCtx: SalaContextType = {
   listaMensajes: mensajesMock,
+  totalMensajes: mensajesMock.length,
   salaActiva: { id: 's1', nombre: 'General' },
   salas: [{ id: 's1', nombre: 'General' }],
   agregarMensaje: vi.fn().mockResolvedValue(true),
   actualizarMsjs: vi.fn(),
+  cargarMasMensajes: vi.fn(),
   asignarSala: vi.fn(),
   eliminarSala: vi.fn(),
   crearSala: vi.fn(),
@@ -85,5 +87,22 @@ describe('SalaChat', () => {
     expect(screen.getByText('hola')).toBeInTheDocument()
     expect(screen.getByText('chau')).toBeInTheDocument()
     expect(screen.queryByText('otra sala')).not.toBeInTheDocument()
+  })
+
+  it('muestra boton "Cargar mensajes anteriores" cuando hay mas mensajes', () => {
+    renderSalaChat({ totalMensajes: 5 })
+    expect(screen.getByRole('button', { name: 'Cargar mensajes anteriores' })).toBeInTheDocument()
+  })
+
+  it('click en "Cargar mensajes anteriores" llama cargarMasMensajes', () => {
+    const cargarMasMensajes = vi.fn()
+    renderSalaChat({ totalMensajes: 5, cargarMasMensajes })
+    fireEvent.click(screen.getByRole('button', { name: 'Cargar mensajes anteriores' }))
+    expect(cargarMasMensajes).toHaveBeenCalledOnce()
+  })
+
+  it('no muestra boton cuando no hay mas mensajes', () => {
+    renderSalaChat({ totalMensajes: 2 })
+    expect(screen.queryByRole('button', { name: 'Cargar mensajes anteriores' })).not.toBeInTheDocument()
   })
 })

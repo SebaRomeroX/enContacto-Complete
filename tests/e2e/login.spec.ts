@@ -46,6 +46,7 @@ test.describe('E2E', () => {
 
     await page.getByRole('link', { name: 'Salir' }).click()
     await page.waitForURL('/login')
+    await page.waitForFunction(() => localStorage.getItem('token') === null)
 
     const token = await page.evaluate(() => localStorage.getItem('token'))
     const user = await page.evaluate(() => localStorage.getItem('user'))

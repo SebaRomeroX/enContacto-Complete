@@ -70,15 +70,42 @@ export async function setupAuthRoutes(page: Page) {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true }) })
   })
 
-  await page.route(`${API_BASE}/mensajes`, async route => {
-    if (route.request().method() === 'POST') {
-      const body = route.request().postDataJSON()
+  const baseRegex = API_BASE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const mensajesListRegex = new RegExp(`^${baseRegex}/mensajes(\\?.*)?$`)
+
+  await page.route(mensajesListRegex, async route => {
+    const req = route.request()
+    if (req.method() === 'POST') {
+      const body = req.postDataJSON()
       const saved = { id: `m${Date.now()}`, ...body }
       mensajes.push(saved)
       await route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify(saved) })
-    } else {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mensajes) })
+      return
     }
+
+    const url = new URL(req.url())
+    const salaId = url.searchParams.get('salaId')
+    const desde = url.searchParams.get('desde')
+    const hasta = url.searchParams.get('hasta')
+    const limit = Number(url.searchParams.get('limit') ?? 50)
+    const offset = Number(url.searchParams.get('offset') ?? 0)
+
+    let filtrados = [...mensajes]
+    if (salaId) filtrados = filtrados.filter(m => (typeof m.salaId === 'object' ? m.salaId.id : m.salaId) === salaId)
+    if (desde) filtrados = filtrados.filter(m => !m.date || m.date >= desde)
+    if (hasta) filtrados = filtrados.filter(m => !m.date || m.date <= hasta)
+
+    filtrados.sort((a, b) => new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime())
+
+    const total = filtrados.length
+    const pagina = filtrados.slice(offset, offset + limit)
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: { 'x-total-count': String(total) },
+      body: JSON.stringify(pagina),
+    })
   })
 
   await page.route(`${API_BASE}/mensajes/*`, async route => {

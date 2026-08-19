@@ -32,10 +32,12 @@ export const Login = () => {
     if (!inputs.user || !inputs.pass) return
 
     try {
-      const userLogeado = await logear(inputs.user, inputs.pass)
-      if (userLogeado) {
+      const resultado = await logear(inputs.user, inputs.pass)
+      if (resultado === 'ok') {
         navigate(RUTAS.chat)
-      }else {
+      } else if (resultado === 'rate') {
+        setError('Demasiados intentos. Espera un momento e intenta de nuevo')
+      } else {
         setError('Los datos no coinciden con ningun perfil')
         inputRef.current?.focus()
       }

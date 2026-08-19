@@ -161,7 +161,7 @@ describe('SalasProvider', () => {
     expect(ctx.current.salas).toHaveLength(2)
   })
 
-  it('eliminarSala: hace DELETE, remueve de salas, pagina y borra mensajes asociados', async () => {
+  it('eliminarSala: hace DELETE, remueve de salas y limpia la sala activa', async () => {
     const ctx = renderProvider()
     await waitForLoad(ctx)
     act(() => {
@@ -175,8 +175,37 @@ describe('SalasProvider', () => {
     expect(ctx.current.salas).toHaveLength(1)
     expect(ctx.current.salas![0].id).toBe('s2')
     expect(ctx.current.salaActiva).toBeUndefined()
-    expect(mockGetMensajes).toHaveBeenCalledWith({ salaId: 's1', limit: 100, offset: 0 })
-    expect(mockDeleteMensaje).toHaveBeenCalledTimes(mensajesMock.length)
+    expect(mockDeleteMensaje).not.toHaveBeenCalled()
+  })
+
+  it('eliminarSala: un 404 de DELETE se trata como "ya estaba borrada" y no lanza', async () => {
+    mockDeleteSalas.mockRejectedValue({ response: { status: 404 } })
+    const ctx = renderProvider()
+    await waitForLoad(ctx)
+    await act(async () => {
+      await expect(ctx.current.eliminarSala('s1')).resolves.toBeUndefined()
+    })
+    expect(ctx.current.salas).toHaveLength(1)
+    expect(ctx.current.salas![0].id).toBe('s2')
+    expect(mockDeleteMensaje).not.toHaveBeenCalled()
+  })
+
+  it('agregarMensaje: un 400 con salaId inexistente limpia la sala activa', async () => {
+    mockPostMensaje.mockRejectedValue({
+      response: { status: 400, data: { detalles: "el campo 'salaId' no corresponde a una sala existente" } },
+    })
+    const ctx = renderProvider()
+    await waitForLoad(ctx)
+    act(() => {
+      ctx.current.asignarSala('s1')
+    })
+    await act(async () => {})
+    expect(ctx.current.salaActiva).toBeDefined()
+    const ok = await act(async () => ctx.current.agregarMensaje('hola', 'u1', 's1'))
+    expect(ok).toBe(false)
+    expect(ctx.current.salaActiva).toBeUndefined()
+    expect(ctx.current.listaMensajes).toEqual([])
+    expect(ctx.current.totalMensajes).toBe(0)
   })
 
   describe('polling', () => {

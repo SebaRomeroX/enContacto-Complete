@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type PropsWithChildren } from 'react'
 import type { MensajeType, Sala } from '../types/types';
-import { getMensajes, postMensaje, deleteMensaje } from '../services/mensajes'
+import { getMensajes, postMensaje } from '../services/mensajes'
 import { getSalas, postSalas, deleteSalas } from '../services/salas'
 import { SalasContext, type SalaContextType } from './salasContext.tsx';
 
@@ -109,6 +109,14 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
       setTotalMensajes(prev => prev + 1)
       return true
     } catch (err) {
+      const response = (err as { response?: { status?: number, data?: { detalles?: unknown, error?: string } } })?.response
+      const detalles = typeof response?.data?.detalles === 'string' ? response.data.detalles : ''
+      const errorMsg = typeof response?.data?.error === 'string' ? response.data.error : ''
+      if (response?.status === 400 && (detalles.includes('salaId') || errorMsg.includes('salaId'))) {
+        setSalaActiva(undefined)
+        setMensajes([])
+        setTotalMensajes(0)
+      }
       console.error('Error al agregar mensaje:', err)
       return false
     }
@@ -121,37 +129,19 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   async function eliminarSala(id: string) {
     try {
       await deleteSalas(id)
-
-      setSalas(prev => prev?.filter(s => s.id !== id))
-      if (salaActiva?.id === id) {
-        setSalaActiva(undefined)
-        setMensajes([])
-        setTotalMensajes(0)
-      }
-
-      let offset = 0
-      const todos: MensajeType[] = []
-      for (;;) {
-        const { mensajes, total } = await getMensajes({ salaId: id, limit: 100, offset })
-        todos.push(...mensajes)
-        offset += mensajes.length
-        if (todos.length >= total || mensajes.length === 0) break
-      }
-
-      for (let i = 0; i < todos.length; i += 3) {
-        const lote = todos.slice(i, i + 3)
-        await Promise.all(
-          lote
-            .filter(msj => msj.id)
-            .map(msj => deleteMensaje(msj.id!).catch(() => {}))
-        )
-      }
-
-      actualizarMsjs()
-
     } catch (error) {
-      console.error('Error al eliminar la sala:', error)
-      throw error
+      const status = (error as { response?: { status?: number } })?.response?.status
+      if (status !== 404) {
+        console.error('Error al eliminar la sala:', error)
+        throw error
+      }
+    }
+
+    setSalas(prev => prev?.filter(s => s.id !== id))
+    if (salaActiva?.id === id) {
+      setSalaActiva(undefined)
+      setMensajes([])
+      setTotalMensajes(0)
     }
   }
 

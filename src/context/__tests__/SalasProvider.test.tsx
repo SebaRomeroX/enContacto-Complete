@@ -9,6 +9,8 @@ import type { MensajesParams } from '../../services/mensajes'
 const mockGetSalas = vi.hoisted(() => vi.fn())
 const mockPostSalas = vi.hoisted(() => vi.fn())
 const mockDeleteSalas = vi.hoisted(() => vi.fn())
+const mockAgregarMiembros = vi.hoisted(() => vi.fn())
+const mockQuitarMiembro = vi.hoisted(() => vi.fn())
 const mockGetMensajes = vi.hoisted(() => vi.fn())
 const mockPostMensaje = vi.hoisted(() => vi.fn())
 const mockDeleteMensaje = vi.hoisted(() => vi.fn())
@@ -17,6 +19,8 @@ vi.mock('../../services/salas', () => ({
   getSalas: (...args: unknown[]) => mockGetSalas(...args),
   postSalas: (...args: unknown[]) => mockPostSalas(...args),
   deleteSalas: (...args: unknown[]) => mockDeleteSalas(...args),
+  agregarMiembros: (...args: unknown[]) => mockAgregarMiembros(...args),
+  quitarMiembro: (...args: unknown[]) => mockQuitarMiembro(...args),
 }))
 
 vi.mock('../../services/mensajes', () => ({
@@ -62,6 +66,16 @@ beforeEach(() => {
   mockPostMensaje.mockImplementation(async (data: MensajeType) => ({ id: 'm3', ...data }))
   mockDeleteSalas.mockResolvedValue(undefined)
   mockDeleteMensaje.mockResolvedValue(undefined)
+  mockAgregarMiembros.mockImplementation(async (salaId: string, usuarioIds: string[]) => ({
+    id: salaId,
+    nombre: salasMock.find(s => s.id === salaId)?.nombre ?? '',
+    listaMiembros: usuarioIds,
+  }))
+  mockQuitarMiembro.mockImplementation(async (salaId: string) => ({
+    id: salaId,
+    nombre: salasMock.find(s => s.id === salaId)?.nombre ?? '',
+    listaMiembros: [],
+  }))
 })
 
 afterEach(() => {
@@ -206,6 +220,156 @@ describe('SalasProvider', () => {
     expect(ctx.current.salaActiva).toBeUndefined()
     expect(ctx.current.listaMensajes).toEqual([])
     expect(ctx.current.totalMensajes).toBe(0)
+  })
+
+  describe('membresia (403)', () => {
+    it('asignarSala: un 403 al cargar mensajes saca la sala del estado y avisa', async () => {
+      mockGetMensajes.mockRejectedValue({ response: { status: 403 } })
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      act(() => {
+        ctx.current.asignarSala('s1')
+      })
+      await act(async () => {})
+      expect(ctx.current.salas).toHaveLength(1)
+      expect(ctx.current.salas![0].id).toBe('s2')
+      expect(ctx.current.salaActiva).toBeUndefined()
+      expect(ctx.current.listaMensajes).toEqual([])
+      expect(ctx.current.totalMensajes).toBe(0)
+      expect(ctx.current.aviso).toBe('Ya no sos miembro de la sala "General"')
+    })
+
+    it('agregarMensaje: un 403 expulsa de la sala y devuelve false', async () => {
+      mockPostMensaje.mockRejectedValue({ response: { status: 403 } })
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      act(() => {
+        ctx.current.asignarSala('s1')
+      })
+      await act(async () => {})
+      const ok = await act(async () => ctx.current.agregarMensaje('hola', 'u1', 's1'))
+      expect(ok).toBe(false)
+      expect(ctx.current.salaActiva).toBeUndefined()
+      expect(ctx.current.salas).toHaveLength(1)
+      expect(ctx.current.aviso).toBeDefined()
+    })
+
+    it('descartarAviso limpia el aviso', async () => {
+      mockGetMensajes.mockRejectedValue({ response: { status: 403 } })
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      act(() => {
+        ctx.current.asignarSala('s1')
+      })
+      await act(async () => {})
+      expect(ctx.current.aviso).toBeDefined()
+      act(() => {
+        ctx.current.descartarAviso()
+      })
+      expect(ctx.current.aviso).toBeUndefined()
+    })
+
+    it('polling: un 403 en el refresco periodico expulsa de la sala', async () => {
+      vi.useFakeTimers()
+      mockGetMensajes.mockResolvedValue({ mensajes: mensajesMock, total: 2 })
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      act(() => {
+        ctx.current.asignarSala('s1')
+      })
+      await act(async () => {})
+      expect(ctx.current.salaActiva).toBeDefined()
+
+      mockGetMensajes.mockRejectedValue({ response: { status: 403 } })
+      await act(async () => {
+        await vi.advanceTimersByTime(3000)
+      })
+      expect(ctx.current.salaActiva).toBeUndefined()
+      expect(ctx.current.listaMensajes).toEqual([])
+      expect(ctx.current.aviso).toBe('Ya no sos miembro de la sala "General"')
+
+      mockGetMensajes.mockClear()
+      await act(async () => {
+        await vi.advanceTimersByTime(9000)
+      })
+      expect(mockGetMensajes).not.toHaveBeenCalled()
+    })
+
+    it('un error no-403 al cargar mensajes NO expulsa', async () => {
+      mockGetMensajes.mockRejectedValue({ response: { status: 500 } })
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      act(() => {
+        ctx.current.asignarSala('s1')
+      })
+      await act(async () => {})
+      expect(ctx.current.salaActiva).toBeDefined()
+      expect(ctx.current.salas).toHaveLength(2)
+      expect(ctx.current.aviso).toBeUndefined()
+    })
+  })
+
+  describe('miembros', () => {
+    it('crearSala manda listaMiembros cuando se indican', async () => {
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      await act(async () => {
+        await ctx.current.crearSala('Proyecto X', ['u2', 'u3'])
+      })
+      expect(mockPostSalas).toHaveBeenCalledWith({ nombre: 'Proyecto X', listaMiembros: ['u2', 'u3'] })
+    })
+
+    it('agregarMiembros actualiza la sala con la respuesta del endpoint', async () => {
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      await act(async () => {
+        await ctx.current.agregarMiembros('s1', ['u2'])
+      })
+      expect(mockAgregarMiembros).toHaveBeenCalledWith('s1', ['u2'])
+      expect(ctx.current.salas![0]).toEqual({ id: 's1', nombre: 'General', listaMiembros: ['u2'] })
+    })
+
+    it('agregarMiembros con lista vacia no llama al endpoint', async () => {
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      await act(async () => {
+        await ctx.current.agregarMiembros('s1', [])
+      })
+      expect(mockAgregarMiembros).not.toHaveBeenCalled()
+    })
+
+    it('quitarMiembro actualiza la sala con la respuesta del endpoint', async () => {
+      const salaConMiembros: Sala = { id: 's1', nombre: 'General', listaMiembros: ['u1', 'u2'] }
+      mockGetSalas.mockResolvedValue([salaConMiembros, salaB])
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      await act(async () => {
+        await ctx.current.quitarMiembro('s1', 'u1')
+      })
+      expect(mockQuitarMiembro).toHaveBeenCalledWith('s1', 'u1')
+      expect(ctx.current.salas![0].listaMiembros).toEqual([])
+    })
+
+    it('quitarMiembro: un 404 ("no era miembro") remueve el id localmente sin lanzar', async () => {
+      const salaConMiembros: Sala = { id: 's1', nombre: 'General', listaMiembros: ['u1', 'u2'] }
+      mockGetSalas.mockResolvedValue([salaConMiembros, salaB])
+      mockQuitarMiembro.mockRejectedValue({ response: { status: 404 } })
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      await act(async () => {
+        await expect(ctx.current.quitarMiembro('s1', 'u1')).resolves.toBeUndefined()
+      })
+      expect(ctx.current.salas![0].listaMiembros).toEqual(['u2'])
+    })
+
+    it('quitarMiembro: un error distinto de 404 se propaga', async () => {
+      mockQuitarMiembro.mockRejectedValue({ response: { status: 403 } })
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      await act(async () => {
+        await expect(ctx.current.quitarMiembro('s1', 'u1')).rejects.toBeDefined()
+      })
+    })
   })
 
   describe('polling', () => {

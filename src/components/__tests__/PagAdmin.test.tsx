@@ -33,8 +33,12 @@ const salasContextValue: SalaContextType = {
   asignarSala: vi.fn(),
   eliminarSala: vi.fn(),
   crearSala: vi.fn(),
+  agregarMiembros: vi.fn().mockResolvedValue(undefined),
+  quitarMiembro: vi.fn().mockResolvedValue(undefined),
   vaciarChat: vi.fn(),
   cambiarNombre: vi.fn(),
+  aviso: undefined,
+  descartarAviso: vi.fn(),
   isLoading: false,
 }
 
@@ -89,7 +93,7 @@ describe('PagAdmin', () => {
     expect(screen.getByText('Usuarios')).toBeInTheDocument()
     expect(screen.getByText('Salas')).toBeInTheDocument()
 
-    expect(screen.getByText('User')).toBeInTheDocument()
+    expect(screen.getAllByText('User').length).toBeGreaterThan(0)
     expect(screen.getByText('General')).toBeInTheDocument()
 
     expect(screen.getByText('Nuevo Usuario')).toBeInTheDocument()
@@ -121,5 +125,53 @@ describe('PagAdmin', () => {
     fireEvent.click(deleteBtns[deleteBtns.length - 1])
 
     expect(eliminarSala).toHaveBeenCalledWith('s1')
+  })
+
+  it('expande la ficha de sala y muestra sus miembros', () => {
+    localStorage.setItem('token', 'abc')
+    renderPagAdmin({}, { salas: [{ id: 's1', nombre: 'General', listaMiembros: ['2'] }] })
+
+    expect(screen.queryByLabelText('Sacar a User')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByText('Miembros (1)'))
+    expect(screen.getByLabelText('Sacar a User')).toBeInTheDocument()
+  })
+
+  it('admin puede sacar un miembro de la sala', () => {
+    localStorage.setItem('token', 'abc')
+    const quitarMiembro = vi.fn().mockResolvedValue(undefined)
+    renderPagAdmin({}, {
+      quitarMiembro,
+      salas: [{ id: 's1', nombre: 'General', listaMiembros: ['2'] }],
+    })
+
+    fireEvent.click(screen.getByText('Miembros (1)'))
+    fireEvent.click(screen.getByLabelText('Sacar a User'))
+    expect(quitarMiembro).toHaveBeenCalledWith('s1', '2')
+  })
+
+  it('admin puede agregar un miembro a la sala', () => {
+    localStorage.setItem('token', 'abc')
+    const agregarMiembros = vi.fn().mockResolvedValue(undefined)
+    renderPagAdmin({}, {
+      agregarMiembros,
+      salas: [{ id: 's1', nombre: 'General', listaMiembros: [] }],
+    })
+
+    fireEvent.click(screen.getByText('Miembros (0)'))
+    fireEvent.change(screen.getByLabelText('Agregar miembro'), { target: { value: '2' } })
+    fireEvent.click(screen.getByText('Agregar'))
+    expect(agregarMiembros).toHaveBeenCalledWith('s1', ['2'])
+  })
+
+  it('nueva sala permite elegir miembros iniciales', () => {
+    localStorage.setItem('token', 'abc')
+    const crearSala = vi.fn().mockResolvedValue(undefined)
+    renderPagAdmin({}, { crearSala })
+
+    fireEvent.change(screen.getByPlaceholderText('Nombre de sala'), { target: { value: 'Proyecto X' } })
+    fireEvent.click(screen.getByRole('checkbox'))
+    fireEvent.click(screen.getAllByText('Crear')[1])
+
+    expect(crearSala).toHaveBeenCalledWith('Proyecto X', ['2'])
   })
 })

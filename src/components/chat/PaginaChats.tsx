@@ -13,7 +13,7 @@ import { Header } from '../Header'
 export const PaginaChats = () => {
   const navigate = useNavigate()
   const { isLoading: usersLoading } = useContext(UsuarioContext)
-  const { asignarSala, isLoading: salasLoading } = useContext(SalasContext)
+  const { asignarSala, isLoading: salasLoading, aviso, descartarAviso } = useContext(SalasContext)
   const token = localStorage.getItem('token')
 
   const loading = token && (usersLoading || salasLoading)
@@ -28,6 +28,12 @@ export const PaginaChats = () => {
   return (
     <section className='pagina-chats fade-in'>
       <Header />
+      {aviso && (
+        <section className='aviso-banner' role='alert'>
+          <p>{aviso}</p>
+          <button aria-label='Cerrar aviso' onClick={descartarAviso}>X</button>
+        </section>
+      )}
       <section className='pantalla' >
         <ListaSalas />
         <SalaChat />

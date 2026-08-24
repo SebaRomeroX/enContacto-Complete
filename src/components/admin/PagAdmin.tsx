@@ -4,7 +4,9 @@ import { UsuarioContext } from "../../context/usuarioContext.tsx"
 import { useNavigate } from 'react-router'
 import { RUTAS } from '../../constants/rutas'
 import { Ficha } from './Ficha'
+import { FichaSala } from './FichaSala'
 import { FormAdmin } from './FormAdmin'
+import { SelectorUsuarios } from './SelectorUsuarios'
 import { SalasContext } from '../../context/salasContext.tsx'
 import { PantallaLoading } from '../PantallaLoading'
 import { Header } from '../Header'
@@ -13,6 +15,7 @@ function mensajeDeError(err: unknown): string | undefined {
   const response = (err as { response?: { status?: number, data?: { detalles?: unknown, error?: string } } })?.response
   if (!response) return undefined
   if (response.status === 403) return 'No tenes permisos para realizar esta accion'
+  if (response.status === 429) return 'Demasiadas acciones seguidas, espera un momento e intenta de nuevo'
   if (response.status === 400) {
     if (typeof response.data?.detalles === 'string') return response.data.detalles
     if (typeof response.data?.error === 'string') return response.data.error
@@ -21,7 +24,7 @@ function mensajeDeError(err: unknown): string | undefined {
 }
 
 export const PagAdmin = () => {
-  const { salas, crearSala, eliminarSala } = useContext(SalasContext)
+  const { salas, crearSala, eliminarSala, agregarMiembros, quitarMiembro } = useContext(SalasContext)
   const { listaUsuarios, usuario, eliminarUsuario, crearUsuario, isLoading: usersLoading } = useContext(UsuarioContext)
   const { isLoading: salasLoading } = useContext(SalasContext)
 
@@ -31,7 +34,10 @@ export const PagAdmin = () => {
 
   const [nuevoNombreUsuario, setNuevoNombreUsuario] = useState('')
   const [nuevoNombreSala, setNuevoNombreSala] = useState('')
+  const [miembrosIniciales, setMiembrosIniciales] = useState<string[]>([])
   const [error, setError] = useState('')
+
+  const usuariosNoAdmin = listaUsuarios?.filter(u => u.rol !== 'admin' && u.id) ?? []
 
   useEffect(() => {
     if (!token) {
@@ -55,12 +61,19 @@ export const PagAdmin = () => {
     setNuevoNombreUsuario('')
   }
 
+  function toggleMiembroInicial(id: string) {
+    setMiembrosIniciales(prev => (
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    ))
+  }
+
   async function handleCrearSala(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!nuevoNombreSala) return
     try {
-      await crearSala(nuevoNombreSala)
+      await crearSala(nuevoNombreSala, miembrosIniciales)
       setError('')
+      setMiembrosIniciales([])
     } catch (err) {
       setError(mensajeDeError(err) ?? 'No se pudo crear la sala')
     }
@@ -82,6 +95,24 @@ export const PagAdmin = () => {
       setError('')
     } catch (err) {
       setError(mensajeDeError(err) ?? 'No se pudo eliminar la sala')
+    }
+  }
+
+  async function handleAgregarMiembro(salaId: string, usuarioIds: string[]) {
+    try {
+      await agregarMiembros(salaId, usuarioIds)
+      setError('')
+    } catch (err) {
+      setError(mensajeDeError(err) ?? 'No se pudo agregar el miembro')
+    }
+  }
+
+  async function handleQuitarMiembro(salaId: string, usuarioId: string) {
+    try {
+      await quitarMiembro(salaId, usuarioId)
+      setError('')
+    } catch (err) {
+      setError(mensajeDeError(err) ?? 'No se pudo quitar el miembro')
     }
   }
 
@@ -124,9 +155,14 @@ export const PagAdmin = () => {
           <h3>Salas</h3>
           {salas?.map(s =>
             s.id && (
-              <Ficha key={s.id} onDelete={() => handleEliminarSala(s.id)}>
-                <h4>{s.nombre}</h4>
-              </Ficha>
+              <FichaSala
+                key={s.id}
+                nombre={s.nombre}
+                listaMiembros={s.listaMiembros}
+                onDelete={() => handleEliminarSala(s.id)}
+                onAgregarMiembros={ids => handleAgregarMiembro(s.id!, ids)}
+                onQuitarMiembro={uid => handleQuitarMiembro(s.id!, uid)}
+              />
             )
           )}
         </ul>
@@ -141,7 +177,13 @@ export const PagAdmin = () => {
               required: true 
             },
           ]}
-        />
+        >
+          <SelectorUsuarios
+            usuarios={usuariosNoAdmin}
+            seleccionados={miembrosIniciales}
+            onToggle={toggleMiembroInicial}
+          />
+        </FormAdmin>
       </section>
     </section>
   )

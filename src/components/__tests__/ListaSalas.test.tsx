@@ -22,8 +22,12 @@ const salasContextValue: SalaContextType = {
   asignarSala: vi.fn(),
   eliminarSala: vi.fn(),
   crearSala: vi.fn(),
+  agregarMiembros: vi.fn().mockResolvedValue(undefined),
+  quitarMiembro: vi.fn().mockResolvedValue(undefined),
   vaciarChat: vi.fn(),
   cambiarNombre: vi.fn(),
+  aviso: undefined,
+  descartarAviso: vi.fn(),
   isLoading: false,
 }
 

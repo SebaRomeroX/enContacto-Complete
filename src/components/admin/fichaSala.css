@@ -1,0 +1,52 @@
+.ficha-sala {
+  flex-wrap: wrap;
+}
+
+.ficha-sala h4 {
+  min-width: 80px;
+}
+
+.ficha-sala__miembros {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: .8em;
+  border-top: 1px solid #444;
+  padding-top: .8em;
+}
+
+.ficha-sala__miembros ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5em;
+}
+
+.ficha-sala__miembro {
+  display: flex;
+  align-items: center;
+  gap: .4em;
+  background-color: #1f1f1f;
+  padding: .2em .5em;
+  border-radius: .4em;
+}
+
+.ficha-sala__miembro button {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  font-size: .85em;
+  padding: 0;
+}
+
+.ficha-sala__agregar {
+  display: flex;
+  gap: .6em;
+  align-items: center;
+}
+
+.ficha-sala__agregar select {
+  height: 30px;
+  border-radius: .4em;
+}

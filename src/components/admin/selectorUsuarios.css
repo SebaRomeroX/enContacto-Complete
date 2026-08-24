@@ -1,0 +1,37 @@
+.selector-usuarios {
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5em;
+}
+
+.selector-usuarios legend {
+  font-size: .9em;
+  opacity: .8;
+}
+
+.selector-usuarios ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .4em;
+  max-width: 420px;
+}
+
+.selector-usuarios label {
+  display: flex;
+  align-items: center;
+  gap: .4em;
+  background-color: #2b2b2b;
+  padding: .3em .6em;
+  border-radius: .4em;
+  cursor: pointer;
+}
+
+.selector-usuarios img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}

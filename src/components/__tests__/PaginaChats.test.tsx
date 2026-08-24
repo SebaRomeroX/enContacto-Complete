@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen, cleanup } from '@testing-library/react'
+import { render, screen, cleanup, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { MemoryRouter } from 'react-router'
 import { UsuarioContext } from '../../context/usuarioContext'
@@ -30,8 +30,12 @@ const salasContextValue: SalaContextType = {
   asignarSala: vi.fn(),
   eliminarSala: vi.fn(),
   crearSala: vi.fn(),
+  agregarMiembros: vi.fn().mockResolvedValue(undefined),
+  quitarMiembro: vi.fn().mockResolvedValue(undefined),
   vaciarChat: vi.fn(),
   cambiarNombre: vi.fn(),
+  aviso: undefined,
+  descartarAviso: vi.fn(),
   isLoading: false,
 }
 
@@ -51,11 +55,11 @@ afterEach(() => {
   localStorage.clear()
 })
 
-function renderPaginaChats() {
+function renderPaginaChats(overridesSalas?: Partial<SalaContextType>) {
   return render(
     <MemoryRouter>
       <UsuarioContext.Provider value={usuarioContextValue}>
-        <SalasContext.Provider value={salasContextValue}>
+        <SalasContext.Provider value={{ ...salasContextValue, ...overridesSalas }}>
           <PaginaChats />
         </SalasContext.Provider>
       </UsuarioContext.Provider>
@@ -83,5 +87,21 @@ describe('PaginaChats', () => {
     const { unmount } = renderPaginaChats()
     unmount()
     expect(salasContextValue.asignarSala).toHaveBeenCalledWith(undefined)
+  })
+
+  it('muestra el aviso cuando existe y permite cerrarlo', () => {
+    localStorage.setItem('token', 'abc123')
+    const descartarAviso = vi.fn()
+    renderPaginaChats({ aviso: 'Ya no sos miembro de la sala "General"', descartarAviso })
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Ya no sos miembro de la sala "General"')
+    fireEvent.click(screen.getByLabelText('Cerrar aviso'))
+    expect(descartarAviso).toHaveBeenCalled()
+  })
+
+  it('sin aviso: no renderiza el banner', () => {
+    localStorage.setItem('token', 'abc123')
+    renderPaginaChats()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 })

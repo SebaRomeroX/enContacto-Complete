@@ -10,3 +10,24 @@
   flex: 1;
   min-height: 0;
 }
+
+.aviso-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1em;
+  background-color: #4a3b1f;
+  border: 1px solid #c9a227;
+  color: #ffe08a;
+  padding: .5em 1em;
+  border-radius: .4em;
+  margin: 0 1em .5em;
+}
+
+.aviso-banner button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1em;
+  cursor: pointer;
+}

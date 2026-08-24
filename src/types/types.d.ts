@@ -30,6 +30,7 @@ export type MensajeType = {
 export type Sala = {
   nombre: string,
   id?: string,
+  listaMiembros?: string[],
 }
 
 export type Credentials = {

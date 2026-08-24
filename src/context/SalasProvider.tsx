@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState, type PropsWithChildren } from 'react'
 import type { MensajeType, Sala } from '../types/types';
 import { getMensajes, postMensaje } from '../services/mensajes'
-import { getSalas, postSalas, deleteSalas } from '../services/salas'
+import { getSalas, postSalas, deleteSalas, agregarMiembros as agregarMiembrosApi, quitarMiembro as quitarMiembroApi } from '../services/salas'
 import { SalasContext, type SalaContextType } from './salasContext.tsx';
+
+function statusDeError(err: unknown): number | undefined {
+  return (err as { response?: { status?: number } })?.response?.status
+}
 
 function dedupeMensajes(list: MensajeType[]): MensajeType[] {
   const vistos = new Set<string>()
@@ -22,10 +26,22 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   const [listaMensajes, setMensajes] = useState<MensajeType[] | undefined>([])
   const [totalMensajes, setTotalMensajes] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
+  const [aviso, setAviso] = useState<string | undefined>(undefined)
 
   const listaMensajesRef = useRef<MensajeType[] | undefined>([])
   useEffect(() => { listaMensajesRef.current = listaMensajes }, [listaMensajes])
 
+  // MEMBRESIA: el admin te saco de la sala (403 en GET/POST de mensajes)
+  function expulsarDeSala(salaId: string) {
+    const sala = salas?.find(s => s.id === salaId)
+    setSalas(prev => prev?.filter(s => s.id !== salaId))
+    if (salaActiva?.id === salaId) {
+      setSalaActiva(undefined)
+      setMensajes([])
+      setTotalMensajes(0)
+    }
+    if (sala) setAviso(`Ya no sos miembro de la sala "${sala.nombre}"`)
+  }
 
   function cargarMensajesSala(salaId: string) {
     setMensajes([])
@@ -35,7 +51,13 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
         setMensajes(mensajes)
         setTotalMensajes(total)
       })
-      .catch(err => console.error('Error al cargar mensajes de la sala:', err))
+      .catch(err => {
+        if (statusDeError(err) === 403) {
+          expulsarDeSala(salaId)
+          return
+        }
+        console.error('Error al cargar mensajes de la sala:', err)
+      })
   }
 
   function actualizarMsjs() {
@@ -49,7 +71,13 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
         setMensajes(prev => dedupeMensajes([...mensajes, ...(prev ?? [])]))
         setTotalMensajes(total)
       })
-      .catch(err => console.error('Error al actualizar mensajes:', err))
+      .catch(err => {
+        if (statusDeError(err) === 403) {
+          expulsarDeSala(salaActiva.id)
+          return
+        }
+        console.error('Error al actualizar mensajes:', err)
+      })
   }
 
   function cargarMasMensajes() {
@@ -112,6 +140,10 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
       const response = (err as { response?: { status?: number, data?: { detalles?: unknown, error?: string } } })?.response
       const detalles = typeof response?.data?.detalles === 'string' ? response.data.detalles : ''
       const errorMsg = typeof response?.data?.error === 'string' ? response.data.error : ''
+      if (response?.status === 403) {
+        expulsarDeSala(salaId)
+        return false
+      }
       if (response?.status === 400 && (detalles.includes('salaId') || errorMsg.includes('salaId'))) {
         setSalaActiva(undefined)
         setMensajes([])
@@ -145,16 +177,45 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     }
   }
 
-  async function crearSala (nombre: string) {
+  async function crearSala (nombre: string, listaMiembros?: string[]) {
     if (salas?.find(sala => sala.nombre === nombre)) return
 
     try {
-      const newSala = { nombre }
+      const newSala = { nombre, ...(listaMiembros?.length ? { listaMiembros } : {}) }
 
       const savedSala = await postSalas(newSala)
       setSalas(prev => prev?.concat(savedSala))
     } catch (err) {
       console.error('Error al crear sala:', err)
+      throw err
+    }
+  }
+
+  // MIEMBROS (solo admin)
+
+  async function agregarMiembros (salaId: string, usuarioIds: string[]) {
+    if (!usuarioIds.length) return
+    try {
+      const salaActualizada = await agregarMiembrosApi(salaId, usuarioIds)
+      setSalas(prev => prev?.map(s => (s.id === salaId ? salaActualizada : s)))
+    } catch (err) {
+      console.error('Error al agregar miembros:', err)
+      throw err
+    }
+  }
+
+  async function quitarMiembro (salaId: string, usuarioId: string) {
+    try {
+      const salaActualizada = await quitarMiembroApi(salaId, usuarioId)
+      setSalas(prev => prev?.map(s => (s.id === salaId ? salaActualizada : s)))
+    } catch (err) {
+      if (statusDeError(err) === 404) {
+        setSalas(prev => prev?.map(s => (
+          s.id === salaId ? { ...s, listaMiembros: s.listaMiembros?.filter(id => id !== usuarioId) } : s
+        )))
+        return
+      }
+      console.error('Error al quitar miembro:', err)
       throw err
     }
   }
@@ -195,12 +256,16 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     totalMensajes,
     salaActiva,
     salas,
+    aviso,
     agregarMensaje,
     asignarSala,
     eliminarSala,
     crearSala,
+    agregarMiembros,
+    quitarMiembro,
     vaciarChat,
     cambiarNombre,
+    descartarAviso: () => setAviso(undefined),
     actualizarMsjs,
     cargarMasMensajes,
     isLoading,

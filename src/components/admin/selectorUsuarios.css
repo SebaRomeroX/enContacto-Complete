@@ -14,10 +14,10 @@
 .selector-usuarios ul {
   list-style: none;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: .4em;
-  max-width: 420px;
+  max-width: 100%;
 }
 
 .selector-usuarios label {

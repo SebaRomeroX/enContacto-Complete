@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen, cleanup, fireEvent } from '@testing-library/react'
+import { render, screen, cleanup, fireEvent, within, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { MemoryRouter } from 'react-router'
 import { UsuarioContext } from '../../context/usuarioContext'
@@ -99,7 +99,7 @@ describe('PagAdmin', () => {
     expect(screen.getByText('Nuevo Usuario')).toBeInTheDocument()
     expect(screen.getByText('Nueva Sala')).toBeInTheDocument()
 
-    expect(screen.getAllByText('Crear')).toHaveLength(2)
+    expect(screen.getAllByText('Crear')).toHaveLength(1)
     expect(screen.getAllByText('Eliminar')).toHaveLength(2)
 
     expect(screen.queryByText('Admin')).not.toBeInTheDocument()
@@ -163,15 +163,32 @@ describe('PagAdmin', () => {
     expect(agregarMiembros).toHaveBeenCalledWith('s1', ['2'])
   })
 
-  it('nueva sala permite elegir miembros iniciales', () => {
+  it('nueva sala abre un modal y permite elegir miembros iniciales', async () => {
     localStorage.setItem('token', 'abc')
     const crearSala = vi.fn().mockResolvedValue(undefined)
     renderPagAdmin({}, { crearSala })
 
-    fireEvent.change(screen.getByPlaceholderText('Nombre de sala'), { target: { value: 'Proyecto X' } })
-    fireEvent.click(screen.getByRole('checkbox'))
-    fireEvent.click(screen.getAllByText('Crear')[1])
+    fireEvent.click(screen.getByText('Nueva Sala'))
 
-    expect(crearSala).toHaveBeenCalledWith('Proyecto X', ['2'])
+    const dialogo = screen.getByRole('dialog', { name: 'Nueva Sala' })
+    expect(within(dialogo).getByLabelText('Nombre de sala')).toBeInTheDocument()
+
+    fireEvent.change(within(dialogo).getByLabelText('Nombre de sala'), { target: { value: 'Proyecto X' } })
+    fireEvent.click(within(dialogo).getByRole('checkbox', { name: /User/ }))
+    fireEvent.click(within(dialogo).getByText('Crear'))
+
+    await waitFor(() => expect(crearSala).toHaveBeenCalledWith('Proyecto X', ['2']))
+  })
+
+  it('cancelar en el modal cierra sin crear la sala', () => {
+    localStorage.setItem('token', 'abc')
+    const crearSala = vi.fn().mockResolvedValue(undefined)
+    renderPagAdmin({}, { crearSala })
+
+    fireEvent.click(screen.getByText('Nueva Sala'))
+    fireEvent.click(screen.getByText('Cancelar'))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(crearSala).not.toHaveBeenCalled()
   })
 })

@@ -6,7 +6,7 @@ import { RUTAS } from '../../constants/rutas'
 import { Ficha } from './Ficha'
 import { FichaSala } from './FichaSala'
 import { FormAdmin } from './FormAdmin'
-import { SelectorUsuarios } from './SelectorUsuarios'
+import { ModalNuevaSala } from './ModalNuevaSala'
 import { SalasContext } from '../../context/salasContext.tsx'
 import { PantallaLoading } from '../PantallaLoading'
 import { Header } from '../Header'
@@ -33,8 +33,7 @@ export const PagAdmin = () => {
   const loading = token && (usersLoading || salasLoading)
 
   const [nuevoNombreUsuario, setNuevoNombreUsuario] = useState('')
-  const [nuevoNombreSala, setNuevoNombreSala] = useState('')
-  const [miembrosIniciales, setMiembrosIniciales] = useState<string[]>([])
+  const [modalNuevaSala, setModalNuevaSala] = useState(false)
   const [error, setError] = useState('')
 
   const usuariosNoAdmin = listaUsuarios?.filter(u => u.rol !== 'admin' && u.id) ?? []
@@ -61,23 +60,13 @@ export const PagAdmin = () => {
     setNuevoNombreUsuario('')
   }
 
-  function toggleMiembroInicial(id: string) {
-    setMiembrosIniciales(prev => (
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    ))
-  }
-
-  async function handleCrearSala(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (!nuevoNombreSala) return
+  async function handleCrearSala(nombre: string, listaMiembros: string[]): Promise<string | undefined> {
     try {
-      await crearSala(nuevoNombreSala, miembrosIniciales)
-      setError('')
-      setMiembrosIniciales([])
+      await crearSala(nombre, listaMiembros)
+      return undefined
     } catch (err) {
-      setError(mensajeDeError(err) ?? 'No se pudo crear la sala')
+      return mensajeDeError(err) ?? 'No se pudo crear la sala'
     }
-    setNuevoNombreSala('')
   }
 
   async function handleEliminarUsuario(id: string) {
@@ -166,24 +155,16 @@ export const PagAdmin = () => {
             )
           )}
         </ul>
-        <FormAdmin
-          legend="Nueva Sala"
-          onSubmit={handleCrearSala}
-          campos={[
-            {
-              placeholder: 'Nombre de sala',
-              value: nuevoNombreSala,
-              onChange: setNuevoNombreSala,
-              required: true 
-            },
-          ]}
-        >
-          <SelectorUsuarios
+        <button className='boton' onClick={() => setModalNuevaSala(true)}>
+          Nueva Sala
+        </button>
+        {modalNuevaSala && (
+          <ModalNuevaSala
             usuarios={usuariosNoAdmin}
-            seleccionados={miembrosIniciales}
-            onToggle={toggleMiembroInicial}
+            onClose={() => setModalNuevaSala(false)}
+            onSubmit={handleCrearSala}
           />
-        </FormAdmin>
+        )}
       </section>
     </section>
   )

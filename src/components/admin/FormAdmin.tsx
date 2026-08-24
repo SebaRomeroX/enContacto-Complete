@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactNode } from "react"
+import { type FormEvent } from "react"
 
 type Campo = {
   placeholder: string
@@ -11,10 +11,9 @@ type FormAdminProps = {
   legend: string
   campos: Campo[]
   onSubmit: (e: FormEvent<HTMLFormElement>) => void
-  children?: ReactNode
 }
 
-export const FormAdmin = ({ legend, campos, onSubmit, children }: FormAdminProps) => {
+export const FormAdmin = ({ legend, campos, onSubmit }: FormAdminProps) => {
   return (
     <form className='formulario' onSubmit={onSubmit}>
       <legend>{legend}</legend>
@@ -29,7 +28,6 @@ export const FormAdmin = ({ legend, campos, onSubmit, children }: FormAdminProps
           className='input-texto'
         />
       ))}
-      {children}
       <button className='boton'>Crear</button>
     </form>
   )

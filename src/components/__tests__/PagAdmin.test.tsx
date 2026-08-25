@@ -127,16 +127,19 @@ describe('PagAdmin', () => {
     expect(eliminarSala).toHaveBeenCalledWith('s1')
   })
 
-  it('expande la ficha de sala y muestra sus miembros', () => {
+  it('el boton Miembros abre el modal con los miembros actuales marcados', () => {
     localStorage.setItem('token', 'abc')
     renderPagAdmin({}, { salas: [{ id: 's1', nombre: 'General', listaMiembros: ['2'] }] })
 
-    expect(screen.queryByLabelText('Sacar a User')).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog', { name: 'Miembros de General' })).not.toBeInTheDocument()
     fireEvent.click(screen.getByText('Miembros (1)'))
-    expect(screen.getByLabelText('Sacar a User')).toBeInTheDocument()
+
+    const dialogo = screen.getByRole('dialog', { name: 'Miembros de General' })
+    expect(within(dialogo).getByRole('checkbox', { name: /User/ })).toBeChecked()
+    expect(within(dialogo).getByText('Guardar')).toBeInTheDocument()
   })
 
-  it('admin puede sacar un miembro de la sala', () => {
+  it('admin puede sacar un miembro desde el modal', async () => {
     localStorage.setItem('token', 'abc')
     const quitarMiembro = vi.fn().mockResolvedValue(undefined)
     renderPagAdmin({}, {
@@ -145,11 +148,13 @@ describe('PagAdmin', () => {
     })
 
     fireEvent.click(screen.getByText('Miembros (1)'))
-    fireEvent.click(screen.getByLabelText('Sacar a User'))
-    expect(quitarMiembro).toHaveBeenCalledWith('s1', '2')
+    fireEvent.click(screen.getByRole('checkbox', { name: /User/ }))
+    fireEvent.click(screen.getByText('Guardar'))
+
+    await waitFor(() => expect(quitarMiembro).toHaveBeenCalledWith('s1', '2'))
   })
 
-  it('admin puede agregar un miembro a la sala', () => {
+  it('admin puede agregar un miembro desde el modal', async () => {
     localStorage.setItem('token', 'abc')
     const agregarMiembros = vi.fn().mockResolvedValue(undefined)
     renderPagAdmin({}, {
@@ -158,9 +163,10 @@ describe('PagAdmin', () => {
     })
 
     fireEvent.click(screen.getByText('Miembros (0)'))
-    fireEvent.change(screen.getByLabelText('Agregar miembro'), { target: { value: '2' } })
-    fireEvent.click(screen.getByText('Agregar'))
-    expect(agregarMiembros).toHaveBeenCalledWith('s1', ['2'])
+    fireEvent.click(screen.getByRole('checkbox', { name: /User/ }))
+    fireEvent.click(screen.getByText('Guardar'))
+
+    await waitFor(() => expect(agregarMiembros).toHaveBeenCalledWith('s1', ['2']))
   })
 
   it('nueva sala abre un modal y permite elegir miembros iniciales', async () => {

@@ -6,7 +6,7 @@ import { RUTAS } from '../../constants/rutas'
 import { Ficha } from './Ficha'
 import { FichaSala } from './FichaSala'
 import { FormAdmin } from './FormAdmin'
-import { ModalNuevaSala } from './ModalNuevaSala'
+import { ModalSala } from './ModalSala'
 import { SalasContext } from '../../context/salasContext.tsx'
 import { PantallaLoading } from '../PantallaLoading'
 import { Header } from '../Header'
@@ -87,21 +87,21 @@ export const PagAdmin = () => {
     }
   }
 
-  async function handleAgregarMiembro(salaId: string, usuarioIds: string[]) {
+  async function handleAgregarMiembro(salaId: string, usuarioIds: string[]): Promise<string | undefined> {
     try {
       await agregarMiembros(salaId, usuarioIds)
-      setError('')
+      return undefined
     } catch (err) {
-      setError(mensajeDeError(err) ?? 'No se pudo agregar el miembro')
+      return mensajeDeError(err) ?? 'No se pudo agregar el miembro'
     }
   }
 
-  async function handleQuitarMiembro(salaId: string, usuarioId: string) {
+  async function handleQuitarMiembro(salaId: string, usuarioId: string): Promise<string | undefined> {
     try {
       await quitarMiembro(salaId, usuarioId)
-      setError('')
+      return undefined
     } catch (err) {
-      setError(mensajeDeError(err) ?? 'No se pudo quitar el miembro')
+      return mensajeDeError(err) ?? 'No se pudo quitar el miembro'
     }
   }
 
@@ -159,7 +159,8 @@ export const PagAdmin = () => {
           Nueva Sala
         </button>
         {modalNuevaSala && (
-          <ModalNuevaSala
+          <ModalSala
+            modo='crear'
             usuarios={usuariosNoAdmin}
             onClose={() => setModalNuevaSala(false)}
             onSubmit={handleCrearSala}

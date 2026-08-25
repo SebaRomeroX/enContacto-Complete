@@ -5,12 +5,13 @@ type SelectorUsuariosProps = {
   usuarios: Usuario[]
   seleccionados: string[]
   onToggle: (id: string) => void
+  legend?: string
 }
 
-export const SelectorUsuarios = ({ usuarios, seleccionados, onToggle }: SelectorUsuariosProps) => {
+export const SelectorUsuarios = ({ usuarios, seleccionados, onToggle, legend = 'Miembros iniciales (opcional)' }: SelectorUsuariosProps) => {
   return (
     <fieldset className='selector-usuarios'>
-      <legend>Miembros iniciales (opcional)</legend>
+      <legend>{legend}</legend>
       <ul>
         {usuarios.map(u =>
           u.id && (

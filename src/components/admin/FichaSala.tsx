@@ -1,34 +1,41 @@
 import { useContext, useState } from 'react'
 import { UsuarioContext } from '../../context/usuarioContext.tsx'
+import { ModalSala } from './ModalSala'
 import './fichaSala.css'
 
 type FichaSalaProps = {
   nombre: string
   listaMiembros?: string[]
   onDelete: () => void
-  onQuitarMiembro: (usuarioId: string) => Promise<void> | void
-  onAgregarMiembros: (usuarioIds: string[]) => Promise<void> | void
+  onQuitarMiembro: (usuarioId: string) => Promise<string | undefined>
+  onAgregarMiembros: (usuarioIds: string[]) => Promise<string | undefined>
 }
 
 export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembro, onAgregarMiembros }: FichaSalaProps) => {
   const { listaUsuarios } = useContext(UsuarioContext)
-  const [expandida, setExpandida] = useState(false)
-  const [nuevoMiembro, setNuevoMiembro] = useState('')
+  const [modalMiembros, setModalMiembros] = useState(false)
 
-  const nombreDe = (id: string) => listaUsuarios?.find(u => u.id === id)?.nombre ?? id
-  const candidatos = listaUsuarios?.filter(u => u.id && !listaMiembros.includes(u.id)) ?? []
+  async function handleGuardar(seleccionados: string[]): Promise<string | undefined> {
+    const visibles = new Set(listaUsuarios?.filter(u => u.id).map(u => u.id))
+    const aQuitar = listaMiembros.filter(id => visibles.has(id) && !seleccionados.includes(id))
+    const aAgregar = seleccionados.filter(id => !listaMiembros.includes(id))
 
-  function handleAgregar() {
-    if (!nuevoMiembro) return
-    onAgregarMiembros([nuevoMiembro])
-    setNuevoMiembro('')
+    for (const id of aQuitar) {
+      const errorMsg = await onQuitarMiembro(id)
+      if (errorMsg) return errorMsg
+    }
+    if (aAgregar.length) {
+      const errorMsg = await onAgregarMiembros(aAgregar)
+      if (errorMsg) return errorMsg
+    }
+    return undefined
   }
 
   return (
     <li className='ficha ficha-sala'>
       <section className='ficha__content'>
         <h4>{nombre}</h4>
-        <button type='button' className='boton' onClick={() => setExpandida(v => !v)}>
+        <button type='button' className='boton' onClick={() => setModalMiembros(true)}>
           Miembros ({listaMiembros.length})
         </button>
       </section>
@@ -37,31 +44,15 @@ export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembr
           Eliminar
         </button>
       </section>
-      {expandida && (
-        <section className='ficha-sala__miembros'>
-          <ul>
-            {listaMiembros.map(id => (
-              <li key={id} className='ficha-sala__miembro'>
-                <span>{nombreDe(id)}</span>
-                <button type='button' aria-label={`Sacar a ${nombreDe(id)}`} onClick={() => onQuitarMiembro(id)}>
-                  Sacar
-                </button>
-              </li>
-            ))}
-            {!listaMiembros.length && <li>Sin miembros</li>}
-          </ul>
-          <section className='ficha-sala__agregar'>
-            <select value={nuevoMiembro} onChange={e => setNuevoMiembro(e.target.value)} aria-label='Agregar miembro'>
-              <option value=''>Agregar miembro…</option>
-              {candidatos.map(u => (
-                <option key={u.id} value={u.id}>{u.nombre}</option>
-              ))}
-            </select>
-            <button type='button' className='boton' disabled={!nuevoMiembro} onClick={handleAgregar}>
-              Agregar
-            </button>
-          </section>
-        </section>
+      {modalMiembros && (
+        <ModalSala
+          modo='miembros'
+          nombreInicial={nombre}
+          usuarios={listaUsuarios ?? []}
+          seleccionadosIniciales={listaMiembros}
+          onClose={() => setModalMiembros(false)}
+          onSubmit={(_nombre, seleccionados) => handleGuardar(seleccionados)}
+        />
       )}
     </li>
   )

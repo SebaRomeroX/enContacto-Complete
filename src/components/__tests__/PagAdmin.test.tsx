@@ -169,6 +169,33 @@ describe('PagAdmin', () => {
     await waitFor(() => expect(agregarMiembros).toHaveBeenCalledWith('s1', ['2']))
   })
 
+  it('el admin no cuenta como miembro ni aparece en el modal de miembros', () => {
+    localStorage.setItem('token', 'abc')
+    renderPagAdmin({}, { salas: [{ id: 's1', nombre: 'General', listaMiembros: ['1', '2'] }] })
+
+    expect(screen.getByText('Miembros (1)')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('Miembros (1)'))
+
+    const dialogo = screen.getByRole('dialog', { name: 'Miembros de General' })
+    expect(within(dialogo).getByRole('checkbox', { name: /User/ })).toBeChecked()
+    expect(within(dialogo).queryByRole('checkbox', { name: /Admin/ })).not.toBeInTheDocument()
+  })
+
+  it('guardar sin cambios no expulsa al admin aunque este en listaMiembros', async () => {
+    localStorage.setItem('token', 'abc')
+    const quitarMiembro = vi.fn().mockResolvedValue(undefined)
+    renderPagAdmin({}, {
+      quitarMiembro,
+      salas: [{ id: 's1', nombre: 'General', listaMiembros: ['1', '2'] }],
+    })
+
+    fireEvent.click(screen.getByText('Miembros (1)'))
+    fireEvent.click(screen.getByText('Guardar'))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(quitarMiembro).not.toHaveBeenCalled()
+  })
+
   it('nueva sala abre un modal y permite elegir miembros iniciales', async () => {
     localStorage.setItem('token', 'abc')
     const crearSala = vi.fn().mockResolvedValue(undefined)

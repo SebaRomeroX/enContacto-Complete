@@ -15,9 +15,14 @@ export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembr
   const { listaUsuarios } = useContext(UsuarioContext)
   const [modalMiembros, setModalMiembros] = useState(false)
 
+  // El admin es miembro implicito de todas las salas: no se cuenta, no se muestra y no puede ser expulsado
+  const usuariosGestionables = listaUsuarios?.filter(u => u.id && u.rol !== 'admin') ?? []
+  const idsAdmin = new Set(listaUsuarios?.filter(u => u.rol === 'admin' && u.id).map(u => u.id))
+  const miembrosVisibles = listaMiembros.filter(id => !idsAdmin.has(id))
+
   async function handleGuardar(seleccionados: string[]): Promise<string | undefined> {
-    const visibles = new Set(listaUsuarios?.filter(u => u.id).map(u => u.id))
-    const aQuitar = listaMiembros.filter(id => visibles.has(id) && !seleccionados.includes(id))
+    const gestionables = new Set(usuariosGestionables.map(u => u.id))
+    const aQuitar = listaMiembros.filter(id => gestionables.has(id) && !seleccionados.includes(id))
     const aAgregar = seleccionados.filter(id => !listaMiembros.includes(id))
 
     for (const id of aQuitar) {
@@ -36,7 +41,7 @@ export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembr
       <section className='ficha__content'>
         <h4>{nombre}</h4>
         <button type='button' className='boton' onClick={() => setModalMiembros(true)}>
-          Miembros ({listaMiembros.length})
+          Miembros ({miembrosVisibles.length})
         </button>
       </section>
       <section className='ficha__actions'>
@@ -48,8 +53,8 @@ export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembr
         <ModalSala
           modo='miembros'
           nombreInicial={nombre}
-          usuarios={listaUsuarios ?? []}
-          seleccionadosIniciales={listaMiembros}
+          usuarios={usuariosGestionables}
+          seleccionadosIniciales={miembrosVisibles}
           onClose={() => setModalMiembros(false)}
           onSubmit={(_nombre, seleccionados) => handleGuardar(seleccionados)}
         />

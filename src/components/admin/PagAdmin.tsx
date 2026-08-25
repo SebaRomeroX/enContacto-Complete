@@ -155,7 +155,7 @@ export const PagAdmin = () => {
             )
           )}
         </ul>
-        <button className='boton' onClick={() => setModalNuevaSala(true)}>
+        <button className='boton boton-nueva-sala' onClick={() => setModalNuevaSala(true)}>
           Nueva Sala
         </button>
         {modalNuevaSala && (

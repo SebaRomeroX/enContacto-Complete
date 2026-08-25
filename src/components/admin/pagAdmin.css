@@ -17,3 +17,8 @@
   max-width: 600px;
   margin: auto;
 }
+
+.boton-nueva-sala {
+  display: block;
+  margin: 1.5em auto 0;
+}

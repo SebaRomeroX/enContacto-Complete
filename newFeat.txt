@@ -1,0 +1,38 @@
+## Cambiar nombre de sala
+
+Endpoint: PATCH /api/salas/:id
+Body: { "nombre": "nuevo nombre" }
+
+Frontend example:
+
+  const res = await fetch(`/api/salas/${salaId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ nombre: nuevoNombre })
+  })
+
+  const salaActualizada = await res.json()
+
+## Vaciar sala (borrar todos los mensajes)
+
+Endpoint: DELETE /api/salas/:id/mensajes
+
+Frontend example:
+
+  const res = await fetch(`/api/salas/${salaId}/mensajes`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+
+  // res.status === 204 si todo sale bien
+
+## Notas
+
+- Ambos endpoints requieren token de admin (rol: 'admin').
+- Sin token: 401. Sin rol admin: 403. Sala no existe: 404.
+- El token se obtiene del login (POST /api/login).

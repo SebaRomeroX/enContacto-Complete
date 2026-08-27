@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PropsWithChildren } from 'react'
 import type { MensajeType, Sala } from '../types/types';
 import { getMensajes, postMensaje } from '../services/mensajes'
-import { getSalas, postSalas, deleteSalas, agregarMiembros as agregarMiembrosApi, quitarMiembro as quitarMiembroApi } from '../services/salas'
+import { getSalas, postSalas, deleteSalas, agregarMiembros as agregarMiembrosApi, quitarMiembro as quitarMiembroApi, cambiarNombre as cambiarNombreApi } from '../services/salas'
 import { SalasContext, type SalaContextType } from './salasContext.tsx';
 
 function statusDeError(err: unknown): number | undefined {
@@ -235,15 +235,9 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     setSalas(newSalas)
   }
 
-  function cambiarNombre (nombre: string, id: string) {
-    const newSalas = salas?.map(sala => {
-      if (sala.id === id) {
-        return {...sala, nombre}
-      }
-      return sala
-    })
-
-    setSalas(newSalas)
+  async function cambiarNombre (id: string, nombre: string) {
+    const salaActualizada = await cambiarNombreApi(id, nombre)
+    setSalas(prev => prev?.map(s => (s.id === id ? salaActualizada : s)))
   }
   //------------------------------------------------------
 

@@ -9,12 +9,16 @@ type FichaSalaProps = {
   onDelete: () => void
   onQuitarMiembro: (usuarioId: string) => Promise<string | undefined>
   onAgregarMiembros: (usuarioIds: string[]) => Promise<string | undefined>
+  onCambiarNombre: (nuevoNombre: string) => Promise<string | undefined>
 }
 
-export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembro, onAgregarMiembros }: FichaSalaProps) => {
+export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembro, onAgregarMiembros, onCambiarNombre }: FichaSalaProps) => {
   const { listaUsuarios } = useContext(UsuarioContext)
   const [modalEditar, setModalEditar] = useState(false)
   const [modalMiembros, setModalMiembros] = useState(false)
+  const [modalNombre, setModalNombre] = useState(false)
+  const [nuevoNombre, setNuevoNombre] = useState(nombre)
+  const [errorNombre, setErrorNombre] = useState('')
 
   // El admin es miembro implicito de todas las salas: no se cuenta, no se muestra y no puede ser expulsado
   const usuariosGestionables = listaUsuarios?.filter(u => u.id && u.rol !== 'admin') ?? []
@@ -56,6 +60,9 @@ export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembr
               <button className='boton' onClick={() => { setModalEditar(false); setModalMiembros(true) }}>
                 Miembros ({miembrosVisibles.length})
               </button>
+              <button className='boton' onClick={() => { setModalEditar(false); setNuevoNombre(nombre); setModalNombre(true) }}>
+                Cambiar nombre
+              </button>
               <button className='boton boton-eliminar' onClick={() => { setModalEditar(false); onDelete() }}>
                 Eliminar
               </button>
@@ -75,6 +82,40 @@ export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembr
           onClose={() => setModalMiembros(false)}
           onSubmit={(_nombre, seleccionados) => handleGuardar(seleccionados)}
         />
+      )}
+      {modalNombre && (
+        <section className='modal-overlay'>
+          <form
+            className='modal'
+            role='dialog'
+            aria-label='Cambiar nombre de sala'
+            onSubmit={async (e) => {
+              e.preventDefault()
+              if (!nuevoNombre.trim()) return
+              setErrorNombre('')
+              const errorMsg = await onCambiarNombre(nuevoNombre.trim())
+              if (errorMsg) setErrorNombre(errorMsg)
+              else setModalNombre(false)
+            }}
+          >
+            <h3>Cambiar nombre</h3>
+            <input
+              className='input-texto'
+              placeholder='Nombre de sala'
+              aria-label='Nombre de sala'
+              value={nuevoNombre}
+              onChange={e => setNuevoNombre(e.target.value)}
+              required
+            />
+            {errorNombre && <p className='error-msg'>{errorNombre}</p>}
+            <section className='modal__acciones'>
+              <button type='button' className='boton boton-secundario' onClick={() => setModalNombre(false)}>
+                Cancelar
+              </button>
+              <button className='boton'>Guardar</button>
+            </section>
+          </form>
+        </section>
       )}
     </li>
   )

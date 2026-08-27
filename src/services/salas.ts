@@ -14,4 +14,9 @@ async function quitarMiembro(salaId: string, usuarioId: string): Promise<Sala> {
   return res.data
 }
 
-export { getSalas, getSalasById, postSalas, deleteSalas, agregarMiembros, quitarMiembro }
+async function cambiarNombre(salaId: string, nombre: string): Promise<Sala> {
+  const res = await apiClient.patch<Sala>(`/salas/${salaId}`, { nombre })
+  return res.data
+}
+
+export { getSalas, getSalasById, postSalas, deleteSalas, agregarMiembros, quitarMiembro, cambiarNombre }

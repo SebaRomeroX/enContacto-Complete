@@ -24,7 +24,7 @@ function mensajeDeError(err: unknown): string | undefined {
 }
 
 export const PagAdmin = () => {
-  const { salas, crearSala, eliminarSala, agregarMiembros, quitarMiembro } = useContext(SalasContext)
+  const { salas, crearSala, eliminarSala, agregarMiembros, quitarMiembro, cambiarNombre } = useContext(SalasContext)
   const { listaUsuarios, usuario, eliminarUsuario, crearUsuario, isLoading: usersLoading } = useContext(UsuarioContext)
   const { isLoading: salasLoading } = useContext(SalasContext)
 
@@ -105,6 +105,15 @@ export const PagAdmin = () => {
     }
   }
 
+  async function handleCambiarNombre(salaId: string, nuevoNombre: string): Promise<string | undefined> {
+    try {
+      await cambiarNombre(salaId, nuevoNombre)
+      return undefined
+    } catch (err) {
+      return mensajeDeError(err) ?? 'No se pudo cambiar el nombre'
+    }
+  }
+
   if (loading) return <PantallaLoading isLoading={loading} />
 
   return (
@@ -151,6 +160,7 @@ export const PagAdmin = () => {
                 onDelete={() => handleEliminarSala(s.id)}
                 onAgregarMiembros={ids => handleAgregarMiembro(s.id!, ids)}
                 onQuitarMiembro={uid => handleQuitarMiembro(s.id!, uid)}
+                onCambiarNombre={nombre => handleCambiarNombre(s.id!, nombre)}
               />
             )
           )}

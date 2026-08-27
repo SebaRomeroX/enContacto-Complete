@@ -8,6 +8,7 @@ export interface UsuarioContextType {
   listaUsuarios: Usuario[] | undefined
   crearUsuario: (nombre: string) => Promise<void>
   eliminarUsuario: (id: string) => Promise<void>
+  actualizarUsuario: (id: string, data: Partial<Usuario>) => Promise<void>
   logear: (nombre: string, contra: string) => Promise<LoginResult>
   cerrarSesion: () => void
   isLoading: boolean
@@ -18,6 +19,7 @@ const defaultUsersValue: UsuarioContextType = {
   listaUsuarios: [],
   crearUsuario: async () => {},
   eliminarUsuario: async () => {},
+  actualizarUsuario: async () => {},
   logear: async () => 'invalid',
   cerrarSesion: () => {},
   isLoading: true,

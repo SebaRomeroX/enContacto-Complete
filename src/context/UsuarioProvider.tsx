@@ -1,7 +1,7 @@
 import { useEffect, type PropsWithChildren } from 'react'
 import { useState } from 'react'
 import type { Usuario } from '../types/types'
-import { getUsuarios, postUsuarios, deleteUsuario } from '../services/usuarios'
+import { getUsuarios, postUsuarios, deleteUsuario, updateUsuario } from '../services/usuarios'
 import { UsuarioContext, type LoginResult, type UsuarioContextType } from './usuarioContext.tsx'
 import loginService from '../services/login.ts'
 
@@ -58,6 +58,26 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
     }
   }
 
+  async function actualizarUsuario (id: string, data: Partial<Usuario>) {
+    try {
+      const updated = await updateUsuario(id, data)
+      setUsuario(prev => {
+        if (prev && prev.id === id) {
+          const nuevoUsuario = { ...prev, ...updated }
+          localStorage.setItem('user', JSON.stringify(nuevoUsuario))
+          return nuevoUsuario
+        }
+        return prev
+      })
+      setListaUsuarios(prev =>
+        prev?.map(u => u.id === id ? { ...u, ...updated } : u)
+      )
+    } catch (err) {
+      console.error('Error al actualizar usuario:', err)
+      throw err
+    }
+  }
+
 
   //------------------
   // LOGEO
@@ -89,6 +109,7 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
     listaUsuarios,
     crearUsuario,
     eliminarUsuario,
+    actualizarUsuario,
     logear,
     cerrarSesion,
     isLoading,

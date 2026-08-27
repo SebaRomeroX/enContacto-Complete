@@ -5,3 +5,17 @@
 .ficha-sala h4 {
   min-width: 80px;
 }
+
+.ficha-sala__miembros {
+  font-size: .9em;
+  opacity: .8;
+}
+
+.boton-eliminar {
+  background-color: #c0392b;
+  color: #fff;
+}
+
+.ficha-sala .modal__acciones {
+  flex-direction: column;
+}

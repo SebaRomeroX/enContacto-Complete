@@ -100,7 +100,7 @@ describe('PagAdmin', () => {
     expect(screen.getByText('Nueva Sala')).toBeInTheDocument()
 
     expect(screen.getAllByText('Crear')).toHaveLength(1)
-    expect(screen.getAllByText('Eliminar')).toHaveLength(2)
+    expect(screen.getAllByText('Eliminar')).toHaveLength(1)
 
     expect(screen.queryByText('Admin')).not.toBeInTheDocument()
   })
@@ -121,8 +121,8 @@ describe('PagAdmin', () => {
     const eliminarSala = vi.fn()
     renderPagAdmin({}, { eliminarSala })
 
-    const deleteBtns = screen.getAllByText('Eliminar')
-    fireEvent.click(deleteBtns[deleteBtns.length - 1])
+    fireEvent.click(screen.getByText('Editar'))
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Editar General' })).getByText('Eliminar'))
 
     expect(eliminarSala).toHaveBeenCalledWith('s1')
   })
@@ -132,7 +132,8 @@ describe('PagAdmin', () => {
     renderPagAdmin({}, { salas: [{ id: 's1', nombre: 'General', listaMiembros: ['2'] }] })
 
     expect(screen.queryByRole('dialog', { name: 'Miembros de General' })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByText('Miembros (1)'))
+    fireEvent.click(screen.getByText('Editar'))
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Editar General' })).getByText(/Miembros/))
 
     const dialogo = screen.getByRole('dialog', { name: 'Miembros de General' })
     expect(within(dialogo).getByRole('checkbox', { name: /User/ })).toBeChecked()
@@ -147,7 +148,8 @@ describe('PagAdmin', () => {
       salas: [{ id: 's1', nombre: 'General', listaMiembros: ['2'] }],
     })
 
-    fireEvent.click(screen.getByText('Miembros (1)'))
+    fireEvent.click(screen.getByText('Editar'))
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Editar General' })).getByText(/Miembros/))
     fireEvent.click(screen.getByRole('checkbox', { name: /User/ }))
     fireEvent.click(screen.getByText('Guardar'))
 
@@ -162,7 +164,8 @@ describe('PagAdmin', () => {
       salas: [{ id: 's1', nombre: 'General', listaMiembros: [] }],
     })
 
-    fireEvent.click(screen.getByText('Miembros (0)'))
+    fireEvent.click(screen.getByText('Editar'))
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Editar General' })).getByText(/Miembros/))
     fireEvent.click(screen.getByRole('checkbox', { name: /User/ }))
     fireEvent.click(screen.getByText('Guardar'))
 
@@ -174,7 +177,8 @@ describe('PagAdmin', () => {
     renderPagAdmin({}, { salas: [{ id: 's1', nombre: 'General', listaMiembros: ['1', '2'] }] })
 
     expect(screen.getByText('Miembros (1)')).toBeInTheDocument()
-    fireEvent.click(screen.getByText('Miembros (1)'))
+    fireEvent.click(screen.getByText('Editar'))
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Editar General' })).getByText(/Miembros/))
 
     const dialogo = screen.getByRole('dialog', { name: 'Miembros de General' })
     expect(within(dialogo).getByRole('checkbox', { name: /User/ })).toBeChecked()
@@ -189,7 +193,8 @@ describe('PagAdmin', () => {
       salas: [{ id: 's1', nombre: 'General', listaMiembros: ['1', '2'] }],
     })
 
-    fireEvent.click(screen.getByText('Miembros (1)'))
+    fireEvent.click(screen.getByText('Editar'))
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Editar General' })).getByText(/Miembros/))
     fireEvent.click(screen.getByText('Guardar'))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
@@ -223,5 +228,30 @@ describe('PagAdmin', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(crearSala).not.toHaveBeenCalled()
+  })
+
+  it('editar abre modal con opciones Miembros y Eliminar', () => {
+    localStorage.setItem('token', 'abc')
+    renderPagAdmin()
+
+    fireEvent.click(screen.getByText('Editar'))
+
+    const dialogo = screen.getByRole('dialog', { name: 'Editar General' })
+    expect(dialogo).toBeInTheDocument()
+    expect(within(dialogo).getByText(/Miembros/)).toBeInTheDocument()
+    expect(within(dialogo).getByText('Eliminar')).toBeInTheDocument()
+    expect(within(dialogo).getByText('Cancelar')).toBeInTheDocument()
+  })
+
+  it('cancelar en el modal de editar cierra sin acciones', () => {
+    localStorage.setItem('token', 'abc')
+    const eliminarSala = vi.fn()
+    renderPagAdmin({}, { eliminarSala })
+
+    fireEvent.click(screen.getByText('Editar'))
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Editar General' })).getByText('Cancelar'))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(eliminarSala).not.toHaveBeenCalled()
   })
 })

@@ -13,6 +13,7 @@ type FichaSalaProps = {
 
 export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembro, onAgregarMiembros }: FichaSalaProps) => {
   const { listaUsuarios } = useContext(UsuarioContext)
+  const [modalEditar, setModalEditar] = useState(false)
   const [modalMiembros, setModalMiembros] = useState(false)
 
   // El admin es miembro implicito de todas las salas: no se cuenta, no se muestra y no puede ser expulsado
@@ -40,15 +41,31 @@ export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembr
     <li className='ficha ficha-sala'>
       <section className='ficha__content'>
         <h4>{nombre}</h4>
-        <button type='button' className='boton' onClick={() => setModalMiembros(true)}>
-          Miembros ({miembrosVisibles.length})
-        </button>
+        <span className='ficha-sala__miembros'>Miembros ({miembrosVisibles.length})</span>
       </section>
       <section className='ficha__actions'>
-        <button className='boton' onClick={onDelete}>
-          Eliminar
+        <button className='boton' onClick={() => setModalEditar(true)}>
+          Editar
         </button>
       </section>
+      {modalEditar && (
+        <section className='modal-overlay'>
+          <div className='modal' role='dialog' aria-label={`Editar ${nombre}`}>
+            <h3>Editar - {nombre}</h3>
+            <section className='modal__acciones'>
+              <button className='boton' onClick={() => { setModalEditar(false); setModalMiembros(true) }}>
+                Miembros ({miembrosVisibles.length})
+              </button>
+              <button className='boton boton-eliminar' onClick={() => { setModalEditar(false); onDelete() }}>
+                Eliminar
+              </button>
+              <button type='button' className='boton boton-secundario' onClick={() => setModalEditar(false)}>
+                Cancelar
+              </button>
+            </section>
+          </div>
+        </section>
+      )}
       {modalMiembros && (
         <ModalSala
           modo='miembros'

@@ -52,7 +52,7 @@ export const PagAdmin = () => {
     e.preventDefault()
     if (!nuevoNombreUsuario) return
     try {
-      await crearUsuario(nuevoNombreUsuario, 'no-foto.png')
+      await crearUsuario(nuevoNombreUsuario)
       setError('')
     } catch (err) {
       setError(mensajeDeError(err) ?? 'No se pudo crear el usuario')

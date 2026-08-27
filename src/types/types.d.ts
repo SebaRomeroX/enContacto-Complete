@@ -4,7 +4,7 @@ export type Usuario = {
   id?: string,
   foto: string,
   nombre: string,
-  contra: string,
+  contra?: string,
   rol: UserRol,
 }
 

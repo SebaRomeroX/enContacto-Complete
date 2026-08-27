@@ -1,6 +1,6 @@
 import { useEffect, type PropsWithChildren } from 'react'
 import { useState } from 'react'
-import type { UserRol, Usuario } from '../types/types'
+import type { Usuario } from '../types/types'
 import { getUsuarios, postUsuarios, deleteUsuario } from '../services/usuarios'
 import { UsuarioContext, type LoginResult, type UsuarioContextType } from './usuarioContext.tsx'
 import loginService from '../services/login.ts'
@@ -35,15 +35,11 @@ export const UsuarioProvider = ({ children }: PropsWithChildren) => {
   //---------------
   // FUNCIONES
 
-  async function crearUsuario (nombre: string, foto: string) {
+  async function crearUsuario (nombre: string) {
     if (listaUsuarios?.find(user => user.nombre === nombre)) return
 
     try {
-      const contra = '777'
-      const rol: UserRol = 'user'
-      const newUsuario = { nombre, foto, contra, rol }
-
-      const savedUser = await postUsuarios(newUsuario)
+      const savedUser = await postUsuarios({ nombre })
       setListaUsuarios(prev => prev?.concat(savedUser))
     } catch (err) {
       console.error('Error al crear usuario:', err)

@@ -11,6 +11,7 @@ const mockPostSalas = vi.hoisted(() => vi.fn())
 const mockDeleteSalas = vi.hoisted(() => vi.fn())
 const mockAgregarMiembros = vi.hoisted(() => vi.fn())
 const mockQuitarMiembro = vi.hoisted(() => vi.fn())
+const mockVaciarSala = vi.hoisted(() => vi.fn())
 const mockGetMensajes = vi.hoisted(() => vi.fn())
 const mockPostMensaje = vi.hoisted(() => vi.fn())
 const mockDeleteMensaje = vi.hoisted(() => vi.fn())
@@ -21,6 +22,7 @@ vi.mock('../../services/salas', () => ({
   deleteSalas: (...args: unknown[]) => mockDeleteSalas(...args),
   agregarMiembros: (...args: unknown[]) => mockAgregarMiembros(...args),
   quitarMiembro: (...args: unknown[]) => mockQuitarMiembro(...args),
+  vaciarSala: (...args: unknown[]) => mockVaciarSala(...args),
 }))
 
 vi.mock('../../services/mensajes', () => ({
@@ -65,6 +67,7 @@ beforeEach(() => {
   mockPostSalas.mockImplementation(async (data: Sala) => ({ id: 's3', ...data }))
   mockPostMensaje.mockImplementation(async (data: MensajeType) => ({ id: 'm3', ...data }))
   mockDeleteSalas.mockResolvedValue(undefined)
+  mockVaciarSala.mockResolvedValue(undefined)
   mockDeleteMensaje.mockResolvedValue(undefined)
   mockAgregarMiembros.mockImplementation(async (salaId: string, usuarioIds: string[]) => ({
     id: salaId,
@@ -369,6 +372,36 @@ describe('SalasProvider', () => {
       await act(async () => {
         await expect(ctx.current.quitarMiembro('s1', 'u1')).rejects.toBeDefined()
       })
+    })
+
+    it('vaciarChat: llama al endpoint y limpia mensajes si la sala esta activa', async () => {
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      act(() => {
+        ctx.current.asignarSala('s1')
+      })
+      await act(async () => {})
+      expect(ctx.current.listaMensajes).toHaveLength(2)
+      await act(async () => {
+        await ctx.current.vaciarChat('s1')
+      })
+      expect(mockVaciarSala).toHaveBeenCalledWith('s1')
+      expect(ctx.current.listaMensajes).toEqual([])
+      expect(ctx.current.totalMensajes).toBe(0)
+    })
+
+    it('vaciarChat: llama al endpoint y no afecta mensajes si la sala no esta activa', async () => {
+      const ctx = renderProvider()
+      await waitForLoad(ctx)
+      act(() => {
+        ctx.current.asignarSala('s1')
+      })
+      await act(async () => {})
+      await act(async () => {
+        await ctx.current.vaciarChat('s2')
+      })
+      expect(mockVaciarSala).toHaveBeenCalledWith('s2')
+      expect(ctx.current.listaMensajes).toHaveLength(2)
     })
   })
 

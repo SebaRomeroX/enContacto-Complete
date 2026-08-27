@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import apiClient from '../apiClient'
-import { getSalas, postSalas, deleteSalas, agregarMiembros, quitarMiembro } from '../salas'
+import { getSalas, postSalas, deleteSalas, agregarMiembros, quitarMiembro, vaciarSala } from '../salas'
 
 describe('salas service', () => {
   it('getSalas hace GET a /salas', async () => {
@@ -40,5 +40,12 @@ describe('salas service', () => {
     const res = await quitarMiembro('s1', 'u1')
     expect(spy).toHaveBeenCalledWith('/salas/s1/miembros/u1')
     expect(res).toEqual(sala)
+  })
+
+  it('vaciarSala hace DELETE a /salas/:id/mensajes', async () => {
+    const spy = vi.spyOn(apiClient, 'delete')
+    apiClient.defaults.adapter = vi.fn().mockResolvedValue({})
+    await vaciarSala('s1')
+    expect(spy).toHaveBeenCalledWith('/salas/s1/mensajes')
   })
 })

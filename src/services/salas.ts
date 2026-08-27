@@ -19,4 +19,8 @@ async function cambiarNombre(salaId: string, nombre: string): Promise<Sala> {
   return res.data
 }
 
-export { getSalas, getSalasById, postSalas, deleteSalas, agregarMiembros, quitarMiembro, cambiarNombre }
+async function vaciarSala(salaId: string): Promise<void> {
+  await apiClient.delete(`/salas/${salaId}/mensajes`)
+}
+
+export { getSalas, getSalasById, postSalas, deleteSalas, agregarMiembros, quitarMiembro, cambiarNombre, vaciarSala }

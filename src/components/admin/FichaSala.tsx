@@ -10,9 +10,10 @@ type FichaSalaProps = {
   onQuitarMiembro: (usuarioId: string) => Promise<string | undefined>
   onAgregarMiembros: (usuarioIds: string[]) => Promise<string | undefined>
   onCambiarNombre: (nuevoNombre: string) => Promise<string | undefined>
+  onVaciarChat: () => Promise<string | undefined>
 }
 
-export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembro, onAgregarMiembros, onCambiarNombre }: FichaSalaProps) => {
+export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembro, onAgregarMiembros, onCambiarNombre, onVaciarChat }: FichaSalaProps) => {
   const { listaUsuarios } = useContext(UsuarioContext)
   const [modalEditar, setModalEditar] = useState(false)
   const [modalMiembros, setModalMiembros] = useState(false)
@@ -62,6 +63,9 @@ export const FichaSala = ({ nombre, listaMiembros = [], onDelete, onQuitarMiembr
               </button>
               <button className='boton' onClick={() => { setModalEditar(false); setNuevoNombre(nombre); setModalNombre(true) }}>
                 Cambiar nombre
+              </button>
+              <button className='boton boton-eliminar' onClick={() => { setModalEditar(false); onVaciarChat() }}>
+                Vaciar chat
               </button>
               <button className='boton boton-eliminar' onClick={() => { setModalEditar(false); onDelete() }}>
                 Eliminar

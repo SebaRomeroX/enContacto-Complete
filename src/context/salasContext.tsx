@@ -15,7 +15,7 @@ export interface SalaContextType {
   crearSala: (nombre: string, listaMiembros?: string[]) => Promise<void>;
   agregarMiembros: (salaId: string, usuarioIds: string[]) => Promise<void>;
   quitarMiembro: (salaId: string, usuarioId: string) => Promise<void>;
-  vaciarChat: (id: string) => void;
+  vaciarChat: (id: string) => Promise<string | undefined>;
   cambiarNombre: (id: string, nombre: string) => Promise<void>;
   descartarAviso: () => void;
   isLoading: boolean
@@ -33,7 +33,7 @@ const defaultSalasValue: SalaContextType = {
   crearSala: async () => {},
   agregarMiembros: async () => {},
   quitarMiembro: async () => {},
-  vaciarChat: () => {},
+  vaciarChat: async () => undefined,
   cambiarNombre: async () => {},
   descartarAviso: () => {},
   actualizarMsjs: () => {},

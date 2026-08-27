@@ -230,7 +230,7 @@ describe('PagAdmin', () => {
     expect(crearSala).not.toHaveBeenCalled()
   })
 
-  it('editar abre modal con opciones Miembros y Eliminar', () => {
+  it('editar abre modal con opciones Miembros, Cambiar nombre, Vaciar chat y Eliminar', () => {
     localStorage.setItem('token', 'abc')
     renderPagAdmin()
 
@@ -239,8 +239,21 @@ describe('PagAdmin', () => {
     const dialogo = screen.getByRole('dialog', { name: 'Editar General' })
     expect(dialogo).toBeInTheDocument()
     expect(within(dialogo).getByText(/Miembros/)).toBeInTheDocument()
+    expect(within(dialogo).getByText('Cambiar nombre')).toBeInTheDocument()
+    expect(within(dialogo).getByText('Vaciar chat')).toBeInTheDocument()
     expect(within(dialogo).getByText('Eliminar')).toBeInTheDocument()
     expect(within(dialogo).getByText('Cancelar')).toBeInTheDocument()
+  })
+
+  it('admin puede vaciar chat de una sala', () => {
+    localStorage.setItem('token', 'abc')
+    const vaciarChat = vi.fn().mockResolvedValue(undefined)
+    renderPagAdmin({}, { vaciarChat })
+
+    fireEvent.click(screen.getByText('Editar'))
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Editar General' })).getByText('Vaciar chat'))
+
+    expect(vaciarChat).toHaveBeenCalledWith('s1')
   })
 
   it('cancelar en el modal de editar cierra sin acciones', () => {

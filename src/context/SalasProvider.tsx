@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PropsWithChildren } from 'react'
 import type { MensajeType, Sala } from '../types/types';
 import { getMensajes, postMensaje } from '../services/mensajes'
-import { getSalas, postSalas, deleteSalas, agregarMiembros as agregarMiembrosApi, quitarMiembro as quitarMiembroApi, cambiarNombre as cambiarNombreApi } from '../services/salas'
+import { getSalas, postSalas, deleteSalas, agregarMiembros as agregarMiembrosApi, quitarMiembro as quitarMiembroApi, cambiarNombre as cambiarNombreApi, vaciarSala as vaciarSalaApi } from '../services/salas'
 import { SalasContext, type SalaContextType } from './salasContext.tsx';
 
 function statusDeError(err: unknown): number | undefined {
@@ -223,16 +223,18 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
 
 
 
-  // DE MOMENTO NO USAMOS ------------------------------
-  function vaciarChat (id: string) {
-    const newSalas = salas?.map(sala => {
-      if (sala.id === id) {
-        return {...sala, chat: []}
-      }
-      return sala
-    })
+  async function vaciarChat (id: string) {
+    try {
+      await vaciarSalaApi(id)
+    } catch (err) {
+      console.error('Error al vaciar el chat:', err)
+      throw err
+    }
 
-    setSalas(newSalas)
+    if (salaActiva?.id === id) {
+      setMensajes([])
+      setTotalMensajes(0)
+    }
   }
 
   async function cambiarNombre (id: string, nombre: string) {

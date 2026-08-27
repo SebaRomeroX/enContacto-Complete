@@ -24,7 +24,7 @@ function mensajeDeError(err: unknown): string | undefined {
 }
 
 export const PagAdmin = () => {
-  const { salas, crearSala, eliminarSala, agregarMiembros, quitarMiembro, cambiarNombre } = useContext(SalasContext)
+  const { salas, crearSala, eliminarSala, agregarMiembros, quitarMiembro, cambiarNombre, vaciarChat } = useContext(SalasContext)
   const { listaUsuarios, usuario, eliminarUsuario, crearUsuario, isLoading: usersLoading } = useContext(UsuarioContext)
   const { isLoading: salasLoading } = useContext(SalasContext)
 
@@ -114,6 +114,15 @@ export const PagAdmin = () => {
     }
   }
 
+  async function handleVaciarChat(salaId: string): Promise<string | undefined> {
+    try {
+      await vaciarChat(salaId)
+      return undefined
+    } catch (err) {
+      return mensajeDeError(err) ?? 'No se pudo vaciar el chat'
+    }
+  }
+
   if (loading) return <PantallaLoading isLoading={loading} />
 
   return (
@@ -161,6 +170,7 @@ export const PagAdmin = () => {
                 onAgregarMiembros={ids => handleAgregarMiembro(s.id!, ids)}
                 onQuitarMiembro={uid => handleQuitarMiembro(s.id!, uid)}
                 onCambiarNombre={nombre => handleCambiarNombre(s.id!, nombre)}
+                onVaciarChat={() => handleVaciarChat(s.id!)}
               />
             )
           )}

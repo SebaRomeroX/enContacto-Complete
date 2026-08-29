@@ -1,14 +1,16 @@
 import { useContext } from 'react'
 import { SalasContext } from '../../context/salasContext.tsx'
+import { Cargando } from '../Cargando'
 import './listaSalas.css'
 
 export const ListaSalas = () => {
-  const { asignarSala, salas } = useContext(SalasContext)
+  const { asignarSala, salas, isLoading } = useContext(SalasContext)
 
   return (
     <section className='lista-salas-section'>
       <h2>Salas</h2>
       <ul>
+        {isLoading && <Cargando />}
         {
           salas?.map(sala => (
             <li key={sala.id} onClick={() => sala.id && asignarSala(sala.id)}>

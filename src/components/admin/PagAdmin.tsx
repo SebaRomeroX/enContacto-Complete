@@ -9,6 +9,7 @@ import { FormAdmin } from './FormAdmin'
 import { ModalSala } from './ModalSala'
 import { SalasContext } from '../../context/salasContext.tsx'
 import { PantallaLoading } from '../PantallaLoading'
+import { Cargando } from '../Cargando'
 import { Header } from '../Header'
 import { ConfirmModal } from './ConfirmModal'
 
@@ -136,6 +137,7 @@ export const PagAdmin = () => {
       <section>
         <ul className='lista-admin'>
           <h3>Usuarios</h3>
+          {usersLoading && !listaUsuarios?.length && <Cargando />}
           {listaUsuarios?.map(u =>
             u.rol !== 'admin' && (
               <Ficha
@@ -164,6 +166,7 @@ export const PagAdmin = () => {
       <section>
         <ul className='lista-admin'>
           <h3>Salas</h3>
+          {salasLoading && !salas?.length && <Cargando />}
           {salas?.map(s =>
             s.id && (
               <FichaSala

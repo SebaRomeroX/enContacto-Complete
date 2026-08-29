@@ -26,6 +26,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   const [listaMensajes, setMensajes] = useState<MensajeType[] | undefined>([])
   const [totalMensajes, setTotalMensajes] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
+  const [mensajesLoading, setMensajesLoading] = useState(false)
   const [aviso, setAviso] = useState<string | undefined>(undefined)
 
   const listaMensajesRef = useRef<MensajeType[] | undefined>([])
@@ -46,6 +47,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   function cargarMensajesSala(salaId: string) {
     setMensajes([])
     setTotalMensajes(0)
+    setMensajesLoading(true)
     return getMensajes({ salaId, limit: 50 })
       .then(({ mensajes, total }) => {
         setMensajes(mensajes)
@@ -58,6 +60,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
         }
         console.error('Error al cargar mensajes de la sala:', err)
       })
+      .finally(() => setMensajesLoading(false))
   }
 
   function actualizarMsjs() {
@@ -265,6 +268,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     actualizarMsjs,
     cargarMasMensajes,
     isLoading,
+    mensajesLoading,
   };
 
   return (

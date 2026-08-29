@@ -37,6 +37,15 @@
   font-weight: 600;
 }
 
+/*------------ CARGANDO -----*/
+.cargando {
+  text-align: center;
+  color: aliceblue;
+  opacity: 0.6;
+  padding: 1em;
+  font-size: 0.9em;
+}
+
 /*------------ FADE IN -----*/
 .fade-in {
   animation: fadeIn 0.3s ease-in;

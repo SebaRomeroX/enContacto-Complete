@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef } from 'react'
 import { Mensaje } from './Mensaje'
 import { CajaMensaje } from './CajaMensaje'
+import { Cargando } from '../../Cargando'
 import { SalasContext } from '../../../context/salasContext.tsx'
 import type { MensajeType } from '../../../types/types'
 import './salaChat.css'
@@ -10,7 +11,7 @@ function salaIdDeMensaje(msj: MensajeType) {
 }
 
 export const SalaChat = () => {
-  const { listaMensajes, totalMensajes, salaActiva, cargarMasMensajes } = useContext(SalasContext)
+  const { listaMensajes, totalMensajes, salaActiva, cargarMasMensajes, mensajesLoading } = useContext(SalasContext)
   const contenedorRef = useRef<HTMLUListElement>(null);
   const msjNuevoAnterior = useRef<string | undefined>(undefined);
   const salaAnterior = useRef<string | undefined>(undefined);
@@ -49,6 +50,7 @@ export const SalaChat = () => {
     <section className="sala">
       <ul className="chat-section" ref={contenedorRef}>
         <h2>{salaActiva?.nombre}</h2>
+        {mensajesLoading && <Cargando />}
         {hayMas && (
           <li className='chat-cargar-mas'>
             <button className='boton' onClick={cargarMasMensajes}>

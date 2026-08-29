@@ -4,7 +4,7 @@ import { Cargando } from '../Cargando'
 import './listaSalas.css'
 
 export const ListaSalas = () => {
-  const { asignarSala, salas, isLoading } = useContext(SalasContext)
+  const { asignarSala, salas, isLoading, noLeidos } = useContext(SalasContext)
 
   return (
     <section className='lista-salas-section'>
@@ -14,7 +14,7 @@ export const ListaSalas = () => {
         {
           salas?.map(sala => (
             <li key={sala.id} onClick={() => sala.id && asignarSala(sala.id)}>
-              <h3>{sala.nombre}</h3>
+              <h3>{sala.nombre}{sala.id && noLeidos[sala.id] && <span className="unread-dot" />}</h3>
             </li>
           ))
         }

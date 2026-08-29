@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type PropsWithChildren } from 'react'
+import { useEffect, useRef, useState, useContext, type PropsWithChildren } from 'react'
 import type { MensajeType, Sala } from '../types/types';
 import { getMensajes, postMensaje } from '../services/mensajes'
 import { getSalas, postSalas, deleteSalas, agregarMiembros as agregarMiembrosApi, quitarMiembro as quitarMiembroApi, cambiarNombre as cambiarNombreApi, vaciarSala as vaciarSalaApi } from '../services/salas'
 import { SalasContext, type SalaContextType } from './salasContext.tsx';
+import { UsuarioContext } from './usuarioContext.tsx';
 
 function statusDeError(err: unknown): number | undefined {
   return (err as { response?: { status?: number } })?.response?.status
@@ -21,6 +22,7 @@ function dedupeMensajes(list: MensajeType[]): MensajeType[] {
 }
 
 export const SalasProvider = ({ children } : PropsWithChildren) => {
+  const { usuario } = useContext(UsuarioContext)
   const [salas, setSalas] = useState<Sala[] | undefined>([])
   const [salaActiva, setSalaActiva] = useState<Sala | undefined>(undefined)
   const [listaMensajes, setMensajes] = useState<MensajeType[] | undefined>([])
@@ -28,6 +30,7 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
   const [isLoading, setIsLoading] = useState(true)
   const [mensajesLoading, setMensajesLoading] = useState(false)
   const [aviso, setAviso] = useState<string | undefined>(undefined)
+  const [noLeidos, setNoLeidos] = useState<Record<string, boolean>>({})
 
   const listaMensajesRef = useRef<MensajeType[] | undefined>([])
   useEffect(() => { listaMensajesRef.current = listaMensajes }, [listaMensajes])
@@ -42,6 +45,13 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
       setTotalMensajes(0)
     }
     if (sala) setAviso(`Ya no sos miembro de la sala "${sala.nombre}"`)
+  }
+
+  function marcarSalaLeida(salaId: string) {
+    if (!usuario?.id) return
+    const key = `lastRead:${usuario.id}:${salaId}`
+    localStorage.setItem(key, new Date().toISOString())
+    setNoLeidos(prev => ({ ...prev, [salaId]: false }))
   }
 
   function cargarMensajesSala(salaId: string) {
@@ -102,6 +112,41 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
       .finally(() => setIsLoading(false))
   }, [])
 
+  // Check unread messages for all salas on mount
+  useEffect(() => {
+    if (!salas?.length || !usuario?.id) return
+
+    const checkUnread = async () => {
+      const results = await Promise.allSettled(
+        salas.map(async (sala) => {
+          if (!sala.id) return { salaId: sala.id, hasUnread: false }
+          try {
+            const { mensajes } = await getMensajes({ salaId: sala.id, limit: 1 })
+            if (!mensajes.length) return { salaId: sala.id, hasUnread: false }
+            const latestDate = mensajes[0].date
+            if (!latestDate) return { salaId: sala.id, hasUnread: false }
+            const key = `lastRead:${usuario.id}:${sala.id}`
+            const lastRead = localStorage.getItem(key)
+            const hasUnread = !lastRead || new Date(latestDate) > new Date(lastRead)
+            return { salaId: sala.id, hasUnread }
+          } catch {
+            return { salaId: sala.id, hasUnread: false }
+          }
+        })
+      )
+
+      const nuevosNoLeidos: Record<string, boolean> = {}
+      for (const r of results) {
+        if (r.status === 'fulfilled' && r.value.salaId) {
+          nuevosNoLeidos[r.value.salaId] = r.value.hasUnread
+        }
+      }
+      setNoLeidos(nuevosNoLeidos)
+    }
+
+    checkUnread()
+  }, [salas, usuario?.id])
+
 
   useEffect(() => {
     if (!salaActiva?.id) return
@@ -124,7 +169,10 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     }
     const newSala = salas?.find(salaDB => salaDB.id === id)
     setSalaActiva(newSala)
-    if (newSala?.id) cargarMensajesSala(newSala.id)
+    if (newSala?.id) {
+      cargarMensajesSala(newSala.id)
+      marcarSalaLeida(newSala.id)
+    }
   }
 
 
@@ -256,6 +304,8 @@ export const SalasProvider = ({ children } : PropsWithChildren) => {
     salaActiva,
     salas,
     aviso,
+    noLeidos,
+    marcarSalaLeida,
     agregarMensaje,
     asignarSala,
     eliminarSala,

@@ -19,6 +19,23 @@
   list-style: none;
   border-bottom: 1px solid rgb(114, 117, 121);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.lista-salas-section li h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.unread-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-marca);
+  flex-shrink: 0;
 }
 
 @media all and (min-width:1024px) {

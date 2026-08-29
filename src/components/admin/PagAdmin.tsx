@@ -10,6 +10,7 @@ import { ModalSala } from './ModalSala'
 import { SalasContext } from '../../context/salasContext.tsx'
 import { PantallaLoading } from '../PantallaLoading'
 import { Header } from '../Header'
+import { ConfirmModal } from './ConfirmModal'
 
 function mensajeDeError(err: unknown): string | undefined {
   const response = (err as { response?: { status?: number, data?: { detalles?: unknown, error?: string } } })?.response
@@ -35,6 +36,9 @@ export const PagAdmin = () => {
   const [nuevoNombreUsuario, setNuevoNombreUsuario] = useState('')
   const [modalNuevaSala, setModalNuevaSala] = useState(false)
   const [error, setError] = useState('')
+  const [confirmarEliminarUsuario, setConfirmarEliminarUsuario] = useState<string | null>(null)
+  const [confirmarEliminarSala, setConfirmarEliminarSala] = useState<string | null>(null)
+  const [confirmarVaciarChat, setConfirmarVaciarChat] = useState<string | null>(null)
 
   const usuariosNoAdmin = listaUsuarios?.filter(u => u.rol !== 'admin' && u.id) ?? []
 
@@ -136,7 +140,7 @@ export const PagAdmin = () => {
             u.rol !== 'admin' && (
               <Ficha
                 key={u.id}
-                onDelete={() => u.id && handleEliminarUsuario(u.id)}
+                onDelete={() => u.id && setConfirmarEliminarUsuario(u.id)}
               >
                 <img src={u.foto} />
                 <h4>{u.nombre}</h4>
@@ -166,11 +170,11 @@ export const PagAdmin = () => {
                 key={s.id}
                 nombre={s.nombre}
                 listaMiembros={s.listaMiembros}
-                onDelete={() => handleEliminarSala(s.id)}
+                onDelete={() => setConfirmarEliminarSala(s.id!)}
                 onAgregarMiembros={ids => handleAgregarMiembro(s.id!, ids)}
                 onQuitarMiembro={uid => handleQuitarMiembro(s.id!, uid)}
                 onCambiarNombre={nombre => handleCambiarNombre(s.id!, nombre)}
-                onVaciarChat={() => handleVaciarChat(s.id!)}
+                onVaciarChat={() => setConfirmarVaciarChat(s.id!)}
               />
             )
           )}
@@ -187,6 +191,36 @@ export const PagAdmin = () => {
           />
         )}
       </section>
+      {confirmarEliminarUsuario && (
+        <ConfirmModal
+          mensaje='¿Estás seguro que deseas eliminar este usuario?'
+          onConfirm={() => {
+            handleEliminarUsuario(confirmarEliminarUsuario)
+            setConfirmarEliminarUsuario(null)
+          }}
+          onCancel={() => setConfirmarEliminarUsuario(null)}
+        />
+      )}
+      {confirmarEliminarSala && (
+        <ConfirmModal
+          mensaje='¿Estás seguro que deseas eliminar esta sala?'
+          onConfirm={() => {
+            handleEliminarSala(confirmarEliminarSala)
+            setConfirmarEliminarSala(null)
+          }}
+          onCancel={() => setConfirmarEliminarSala(null)}
+        />
+      )}
+      {confirmarVaciarChat && (
+        <ConfirmModal
+          mensaje='¿Estás seguro que deseas vaciar el chat de esta sala?'
+          onConfirm={() => {
+            handleVaciarChat(confirmarVaciarChat)
+            setConfirmarVaciarChat(null)
+          }}
+          onCancel={() => setConfirmarVaciarChat(null)}
+        />
+      )}
     </section>
   )
 }
